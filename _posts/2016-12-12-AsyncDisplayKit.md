@@ -10,10 +10,6 @@ publish: true
 description: Texture
 ---
 
-
-![image](/assets/images/Textture/textture-logo.png)
-
-
 APP性能的优化，一直都是任重而道远，对于如今需要承载更多信息的APP来说更是突出，值得庆幸的苹果在这方面做得至少比安卓让开发者省心。UIKit 控件虽然在大多数情况下都能满足用户对于流畅性的需求，但有时候还是难以达到理想效果。
 
 [AsyncDisplayKit](https://github.com/facebook/AsyncDisplayKit)(以下简称ASDK) 的出现至少又给了开发者一个不错的选择。毕竟[Paper](https://en.wikipedia.org/wiki/Facebook_Paper)(虽然 Facebook 已经关闭了这个应用)当年有着炫酷的效果的同时依然保持较好的流畅性也得益于 ASDK 的加入。在[Paper](https://en.wikipedia.org/wiki/Facebook_Paper)发布的几个月后 Facebook 就干脆从中剥离出来成为一个独立的库，就在前两天 ASDK 刚好发布了 2.0 版本。目前据我所知国内比较知名有 [轻芒阅读](http://www.wandoujia.com/yilan?utm_source=homepage&utm_campaign=routine&utm_medium=internal&utm_content=header)(豌豆荚一览) 、 [即刻](http://www.ruguoapp.com/) 、 [Yep](https://itunes.apple.com/cn/app/id983891256?mt=8&l=cn) 、[小红书](https://www.xiaohongshu.com/)，[皮皮虾](https://itunes.apple.com/cn/app/%E7%9A%AE%E7%9A%AE%E8%99%BE-%E4%BB%8A%E6%97%A5%E5%A4%B4%E6%9D%A1%E5%AE%98%E6%96%B9%E7%88%86%E7%AC%91%E7%A4%BE%E5%8C%BA/id1393912676) 在用ASDK。
