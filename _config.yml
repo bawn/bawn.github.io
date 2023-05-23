@@ -92,8 +92,8 @@ comments:
     shortname: # fill with the Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
   # utterances settings › https://utteranc.es/
   utterances:
-    repo: "bawn/bawn.github.io"
-    issue_term: "pathname"
+    repo: bawn/bawn.github.io
+    issue_term: pathname
   # Giscus options › https://giscus.app
   giscus:
     repo: # <gh-username>/<repo>
