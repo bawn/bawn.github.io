@@ -14,7 +14,6 @@ publish: true
 本文要讨论的是类似于[即刻](https://www.ruguoapp.com/)、[淘票票](https://www.taopiaopiao.com/)首页，[抖音](https://www.douyin.com/)、[简书](https://www.jianshu.com/)个人主页这样的嵌套滚动效果，事实上网上已经有很多的相关的文章，比如：
 
 
-
 - [嵌套UIScrollview的滑动冲突解决方案](https://www.jianshu.com/p/040772693872)
 
 - [iOS 嵌套UIScrollview的滑动冲突另一种解决方案](https://www.jianshu.com/p/df01610b4e73)
