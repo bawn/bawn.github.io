@@ -148,7 +148,7 @@ ASButtonNodeImageAlignmentEnd// 文字在前，图片在后
 
 ## 布局
 
-阅读 [Texture 布局篇](https://bawn.github.io/2017/12/Texture-Layout/)
+阅读 [Texture 布局篇](https://bawn.github.io/posts/Texture-Layout/)
 
 
 ## 缺点
