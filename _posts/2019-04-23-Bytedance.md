@@ -7,6 +7,7 @@ categories: [iOS]
 tags: [ByteDance]
 keywords: [ByteDance]
 publish: true
+mermaid: true
 ## description: ByteDance
 ---
 
@@ -121,13 +122,6 @@ flowchart TD
     H --> |NO| F
 ```
 
-```mermaid
- gantt
-  title  Adding GANTT diagram functionality to mermaid
-  apple :a, 2017-07-20, 1w
-  banana :crit, b, 2017-07-23, 1d
-  cherry :active, c, after b a, 1d
-```
 
 After that, HTML templates are loaded using the following approach. All related JS and CSS files are loaded locally instead of being fetched from the server, significantly improving page load speed.
 
