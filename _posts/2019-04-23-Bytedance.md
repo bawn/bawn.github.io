@@ -106,7 +106,7 @@ The workflow for downloading offline packages is as follows:
 
 <!-- ![TT-4](/assets/images/Bytedance/TT-4.png) -->
 
-```
+```mermaid
 flowchart TD
     A[At some point after the app launches, the local current_revision file is checked.] --> C
     C{Check if the current_revision file exists}
