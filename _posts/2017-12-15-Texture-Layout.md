@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Texture 布局篇"
+title: "Texture Layout"
 date: 2017-12-15
 comments: true
 categories: [Texture]
@@ -12,7 +12,7 @@ description: Texture
 
 ![image](/assets/images/Texture/textture-logo.png)
 
-`Texture` 拥有自己的一套成熟布局方案，虽然学习成本略高，但至少比原生的 `AutoLayout` 写起来舒服，重点是性能远好于 `AutoLayout` ，`Texture` 文档上也指出了这套布局方案的的优点：
+`Texture` has its own mature layout system. Although the learning curve is a bit steep, it is at least more pleasant to write than native `AutoLayout`, and the key point is that its performance is much better than `AutoLayout`. The Texture documentation also highlights the advantages of this layout system:
 
 * **Fast**: As fast as manual layout code and significantly faster than Auto Layout
 * **Asynchronous & Concurrent**: Layouts can be computed on background threads so user interactions are not interrupted.
@@ -20,7 +20,7 @@ description: Texture
 * **Cacheable**: Layout results are immutable data structures so they can be precomputed in the background and cached to increase user perceived performance.
 * **Extensible**: Easy to share code between classes.
 
-首先这套布局都是基于 `Texture` 组件的，所以当遇到要使用原生控件时，通过用 block 的方式包装一个原生组件再合适不过了，例如:
+First, this layout system is based on `Texture` components, so when you need to use native controls, wrapping a native component in a block is a very natural approach. For example:
 
 ```
 ASDisplayNode *animationImageNode = [[ASDisplayNode alloc] initWithViewBlock:^UIView * _Nonnull{
@@ -34,13 +34,13 @@ self.animationImageNode = animationImageNode;
 ```
 
 
-`ASDisplayNode` 在初始化之后会检查是否有子视图，如果有就会调用
+`ASDisplayNode` checks whether it has subviews after initialization, and if so it calls
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize
 ```
 
-方法进行布局，所以对视图进行布局需要重写这个方法。看一个例子：
+for layout, so you need to override this method to lay out a view. For example:
 
 ```objc
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -48,36 +48,37 @@ self.animationImageNode = animationImageNode;
     return insetLayout;
 }
 ```
-`_childNode` 相对于父视图边距都为 0，也就是`AutoLayout`中 `top` `bottom` `left` `right` 都为 0。
+
+`_childNode` has zero margins relative to its parent view, which is equivalent to `top`, `bottom`, `left`, and `right` all being 0 in `AutoLayout`.
 
 ```
------------------------------父视图----------------------------
+-----------------------------Parent View----------------------------
 |  -------------------------_childNode---------------------  |
 |  |                                                      |  |
 |  |                                                      |  |
 |  ---------------------------  ---------------------------  |
---------------------------------------------------------------
+--------------------------------------------------------------------
 ```
 
-可以看到`layoutSpecThatFits:`方法返回的必须是 `ASLayoutSpec`, `ASInsetLayoutSpec` 是它的子类之一，下面是所有的子类及其关系：
+You can see that `layoutSpecThatFits:` must return an `ASLayoutSpec`. `ASInsetLayoutSpec` is one of its subclasses. Below are all the subclasses and their relationships:
 
 * ASLayoutSpec
-  * ASAbsoluteLayoutSpec   // 绝对布局
-  * ASBackgroundLayoutSpec // 背景布局
-  * ASInsetLayoutSpec      // 边距布局
-  * ASOverlayLayoutSpec    // 覆盖布局
-  * ASRatioLayoutSpec      // 比例布局
-  * ASRelativeLayoutSpec   // 顶点布局
-    * ASCenterLayoutSpec   // 居中布局
-  * ASStackLayoutSpec      // 盒子布局
-  * ASWrapperLayoutSpec    // 填充布局
-  * ASCornerLayoutSpec  // 角标布局
+  * ASAbsoluteLayoutSpec   // absolute layout
+  * ASBackgroundLayoutSpec // background layout
+  * ASInsetLayoutSpec      // inset layout
+  * ASOverlayLayoutSpec    // overlay layout
+  * ASRatioLayoutSpec      // ratio layout
+  * ASRelativeLayoutSpec   // corner layout
+    * ASCenterLayoutSpec   // center layout
+  * ASStackLayoutSpec      // stack layout
+  * ASWrapperLayoutSpec    // fill layout
+  * ASCornerLayoutSpec  // badge layout
 
 ___
 
 ### ASAbsoluteLayoutSpec
 
-使用方法和原生的绝对布局类似
+The usage is similar to native absolute layout.
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -88,7 +89,7 @@ ___
   return absoluteLayout;
 }
 ```
-值得提的是：ASAbsoluteLayoutSpec 一般情况都会通过 `ASOverlayLayoutSpec` 或 `ASOverlayLayoutSpec` 着陆，因为只有上述两种布局才能保留 ASAbsoluteLayoutSpec 绝对布局的事实。举个例子当视图中只有一个控件需要用的是 `ASAbsoluteLayoutSpec` 布局，而其他控件布局用的是 `ASStackLayoutSpec`（后面会介绍），那么一旦 absoluteLayout 被加入到 `ASStackLayoutSpec` 也就失去它原本的布局的意义。
+The important thing to note is that `ASAbsoluteLayoutSpec` is generally placed through `ASOverlayLayoutSpec` or `ASBackgroundLayoutSpec`, because only those two layouts can preserve the absolute-layout behavior of `ASAbsoluteLayoutSpec`. For example, if only one control in a view needs `ASAbsoluteLayoutSpec`, while the rest of the controls use `ASStackLayoutSpec` (introduced later), then once `absoluteLayout` is added to `ASStackLayoutSpec`, it loses its original meaning.
 
 ```
 ASOverlayLayoutSpec *contentLayout = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:stackLayout overlay:absoluteLayout];
@@ -96,7 +97,7 @@ ASOverlayLayoutSpec *contentLayout = [ASOverlayLayoutSpec overlayLayoutSpecWithC
 
 
 
-不过官方文档明确指出应该尽量少用这种布局方式:
+However, the official documentation clearly says this layout style should be used as little as possible:
 
 >Absolute layouts are less flexible and harder to maintain than other types of layouts.
 
@@ -111,7 +112,7 @@ ___
 }
 ```
 
-把`childNodeA` 做为 `childNodeB` 的背景，也就是 `childNodeB` 在上层，**要注意的是 **`ASBackgroundLayoutSpec` 事实上根本不会改变视图的层级关系，比如：
+Use `childNodeA` as the background of `childNodeB`, meaning `childNodeB` is on top. **Note** that `ASBackgroundLayoutSpec` does not actually change the view hierarchy. For example:
 
 ```
 ASDisplayNode *childNodeB = [[ASDisplayNode alloc] init];
@@ -125,13 +126,13 @@ childNodeA.backgroundColor = [UIColor redColor];
 self.childNodeA = childNodeA;
 ```
 
-那么即使使用上面的布局方式，`childNodeB` 依然在下层。
+Even if you use the layout above, `childNodeB` is still underneath.
 
 ___
 
 ### ASInsetLayoutSpec
 
-比较常用的一个类，看图应该能一目了然（图片来自于[官方文档](http://localhost:4000/2016/12/AsyncDisplayKit/)）
+This is one of the most commonly used classes. The diagram should make it clear at a glance (image from the [official documentation](http://localhost:4000/2016/12/AsyncDisplayKit/))
 
 ![image](/assets/images/Texture/ASInsetLayoutSpec-diagram.png)
 
@@ -142,14 +143,13 @@ ___
 }
 ```
 
-`_childNode` 相对于父视图边距都为 0，相当于填充整个父视图。它和之后会说到的
-`ASOverlayLayoutSpec` 实际上更多的用来组合两个 `Element` 而已。
+`_childNode` has zero margins relative to the parent view, which is equivalent to filling the entire parent view. It and `ASOverlayLayoutSpec`, which will be mentioned later, are mostly used to combine two `Element`s.
 
 ___
 
 ### ASOverlayLayoutSpec
 
-参考 `ASBackgroundLayoutSpec`
+See `ASBackgroundLayoutSpec`.
 
 ___
 
@@ -157,9 +157,9 @@ ___
 
 ![image](/assets/images/Texture/ASRatioLayoutSpec-diagram.png)
 
-（图片来自于[官方文档](http://localhost:4000/2016/12/AsyncDisplayKit/)）
+(image from the [official documentation](http://localhost:4000/2016/12/AsyncDisplayKit/))
 
-也是比较常用的一个类，作用是设置自身的高宽比，例如设置正方形的视图
+This is also a commonly used class. Its purpose is to set the aspect ratio of itself, for example to create a square view.
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -172,7 +172,7 @@ ___
 
 ### ASRelativeLayoutSpec
 
-把它称为**顶点布局**可能有点不恰当，实际上它可以把视图布局在：`左上`、`左下`、`右上`、`右下`四个顶点以外，还可以设置成居中布局。
+Calling it **corner layout** may not be entirely accurate. In fact, it can place a view at `top-left`, `bottom-left`, `top-right`, and `bottom-right`, and it can also be set to center layout.
 
 ![image](/assets/images/Texture/ASRelativeLayoutSpec.jpg)
 
@@ -183,13 +183,13 @@ ___
     return relativeLayout;
 }
 ```
-上面的例子就是把 `childNodeA` 显示在右上角。
+The example above places `childNodeA` in the top-right corner.
 
 ___
 
 ### ASCenterLayoutSpec
 
-绝大多数情况下用来居中显示视图
+In most cases, it is used to center a view.
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -203,10 +203,10 @@ ___
 
 ### ASStackLayoutSpec
 
-可以说这是**最常用的类**，而且相对于其他类来说在功能上是最接近于 `AutoLayout` 的。
-之所以称之为**盒子布局**是因为它和 CSS 中 `Flexbox` 很相似，关于 `Flexbox` 的可以看下阮一峰的这篇[文章](http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html?utm_source=tuicool)。
+This can be considered **the most commonly used class**, and in terms of functionality it is the closest to `AutoLayout`.
+It is called **stack layout** because it is very similar to CSS `Flexbox`. For more about `Flexbox`, you can read Ruan Yifeng's [article](http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html?utm_source=tuicool).
 
-先看一个例子：
+Let's look at an example first:
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -220,51 +220,51 @@ ___
     return stackLayout;
 }
 ```
-简单的说明下各个参数的作用：
+Here is a brief explanation of each parameter:
 
-1. `direction`：主轴的方向，有两个可选值：
-* 纵向：`ASStackLayoutDirectionVertical`
-* 横向：`ASStackLayoutDirectionHorizontal`
-2. `spacing`: 主轴上视图排列的间距，比如有四个视图，那么它们之间的存在三个间距值都应该是`spacing`
-3. `justifyContent`: 主轴上的排列方式，有五个可选值：
-* `ASStackLayoutJustifyContentStart` 从前往后排列
-* `ASStackLayoutJustifyContentCenter` 居中排列
-    * `ASStackLayoutJustifyContentEnd` 从后往前排列
-    * `ASStackLayoutJustifyContentSpaceBetween` 间隔排列，两端无间隔
-    * `ASStackLayoutJustifyContentSpaceAround` 间隔排列，两端有间隔
-4. `alignItems`: 交叉轴上的排列方式，有五个可选值：
-* `ASStackLayoutAlignItemsStart` 从前往后排列
-* `ASStackLayoutAlignItemsEnd` 从后往前排列
-    * `ASStackLayoutAlignItemsCenter` 居中排列
-    * `ASStackLayoutAlignItemsStretch` 拉伸排列
-    * `ASStackLayoutAlignItemsBaselineFirst` 以第一个文字元素基线排列（主轴是横向才可用）
-    * `ASStackLayoutAlignItemsBaselineLast` 以最后一个文字元素基线排列（主轴是横向才可用）
-5. `children`: 包含的视图。数组内元素顺序同样代表着布局时排列的顺序，所以需要注意
+1. `direction`: the direction of the main axis. There are two options:
+* Vertical: `ASStackLayoutDirectionVertical`
+* Horizontal: `ASStackLayoutDirectionHorizontal`
+2. `spacing`: the spacing between views along the main axis. For example, if there are four views, the three gaps between them should all be `spacing`.
+3. `justifyContent`: the arrangement along the main axis. There are five options:
+* `ASStackLayoutJustifyContentStart` arrange from start to end
+* `ASStackLayoutJustifyContentCenter` center the items
+    * `ASStackLayoutJustifyContentEnd` arrange from end to start
+    * `ASStackLayoutJustifyContentSpaceBetween` distributed with no space at the ends
+    * `ASStackLayoutJustifyContentSpaceAround` distributed with space at the ends
+4. `alignItems`: the arrangement along the cross axis. There are five options:
+* `ASStackLayoutAlignItemsStart` arrange from start to end
+* `ASStackLayoutAlignItemsEnd` arrange from end to start
+    * `ASStackLayoutAlignItemsCenter` center the items
+    * `ASStackLayoutAlignItemsStretch` stretch the items
+    * `ASStackLayoutAlignItemsBaselineFirst` align using the first text baseline (only available when the main axis is horizontal)
+    * `ASStackLayoutAlignItemsBaselineLast` align using the last text baseline (only available when the main axis is horizontal)
+5. `children`: the views to include. The order of elements in the array also represents their layout order, so this matters.
 
-**主轴的方向设置尤为重要**，如果主轴设置的是 `ASStackLayoutDirectionVertical`, 那么 `justifyContent` 各个参数的意义就是：
+**The main-axis direction is especially important**. If the main axis is set to `ASStackLayoutDirectionVertical`, then the meaning of the `justifyContent` values becomes:
 
-* `ASStackLayoutJustifyContentStart` 从上往下排列
-* `ASStackLayoutJustifyContentCenter` 居中排列
-* `ASStackLayoutJustifyContentEnd` 从下往上排列
-* `ASStackLayoutJustifyContentSpaceBetween` 间隔排列，两端无间隔
-* `ASStackLayoutJustifyContentSpaceAround` 间隔排列，两端有间隔
+* `ASStackLayoutJustifyContentStart` arrange from top to bottom
+* `ASStackLayoutJustifyContentCenter` center the items
+* `ASStackLayoutJustifyContentEnd` arrange from bottom to top
+* `ASStackLayoutJustifyContentSpaceBetween` distributed with no space at the ends
+* `ASStackLayoutJustifyContentSpaceAround` distributed with space at the ends
 
-`alignItems` 就是：
+`alignItems` then becomes:
 
-* `ASStackLayoutAlignItemsStart` 从左往右排列
-* `ASStackLayoutAlignItemsEnd` 从右往左排列
-* `ASStackLayoutAlignItemsCenter` 居中排列
-* `ASStackLayoutAlignItemsStretch` 拉伸排列
-* `ASStackLayoutAlignItemsBaselineFirst` 无效
-* `ASStackLayoutAlignItemsBaselineLast` 无效
+* `ASStackLayoutAlignItemsStart` arrange from left to right
+* `ASStackLayoutAlignItemsEnd` arrange from right to left
+* `ASStackLayoutAlignItemsCenter` center the items
+* `ASStackLayoutAlignItemsStretch` stretch the items
+* `ASStackLayoutAlignItemsBaselineFirst` invalid
+* `ASStackLayoutAlignItemsBaselineLast` invalid
 
-对于子视图间距不一样的布局方法，后面实战中会讲到。
+A layout method for subviews with different spacing will be covered later in the practical examples.
 
 ___
 
 ### ASWrapperLayoutSpec
 
-填充整个视图
+Fill the entire view.
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{    
@@ -279,7 +279,7 @@ ___
 
 ### ASCornerLayoutSpec
 
-顾名思义  ASCornerLayoutSpec 适用于类似于角标的布局
+As the name suggests, `ASCornerLayoutSpec` is suitable for badge-like layouts.
 
 ```swift
 override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
@@ -289,16 +289,15 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
 }
 ```
 
-**最需要注意的是**`offset`是控件的Center的偏移
+**The most important thing to note** is that `offset` is the offset of the control's center.
 
 
+## Layout in Practice
 
-## 布局实战
-
-### 案例一
+### Example 1
 ![image](/assets/images/Texture/ASDKDemo1.png)
 
-简单的文件覆盖在图片上，文字居中。
+A simple title over an image, with the text centered.
 
 ```
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -309,26 +308,26 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
     return overSpec;
 }
 ```
-1. `ASWrapperLayoutSpec` 把图片铺满整个视图
-2. `ASCenterLayoutSpec` 把文字居中显示
-3. `ASOverlayLayoutSpec` 把文字覆盖到图片上
+1. `ASWrapperLayoutSpec` makes the image fill the entire view
+2. `ASCenterLayoutSpec` centers the text
+3. `ASOverlayLayoutSpec` overlays the text on the image
 
-注意第三步就是之前提到的 `ASOverlayLayoutSpec`/`ASBackgroundLayoutSpec` 的作用：用于组合两个 `Element`。
+Note that the third step is the role mentioned earlier for `ASOverlayLayoutSpec` / `ASBackgroundLayoutSpec`: it is used to combine two `Element`s.
 
-### 案例二
+### Example 2
 
 ![image](/assets/images/Texture/ASDKDemo21.png)
 
-这个是[轻芒阅读](http://www.wandoujia.com/yilan?utm_source=homepage&utm_campaign=routine&utm_medium=internal&utm_content=header)(豌豆荚一览) APP 内 AppSo 频道 Cell 的布局，应该也是比较典型的布局之一。为了方便理解先给各个元素定一下名称，从上至下，从左往右分别是：
+This is the layout of an AppSo channel cell inside the [QingMang Reading](http://www.wandoujia.com/yilan?utm_source=homepage&utm_campaign=routine&utm_medium=internal&utm_content=header) (Wandoujia Yilan) app. It is also one of the more typical layouts. To make it easier to understand, let's name the elements from top to bottom and left to right as follows:
 
-* coverImageNode // 大图
-* titleNode // 标题
-* subTitleNode // 副标题
-* dateTextNode // 发布时间
-* shareImageNode // 分享图标
-* shareNumberNode // 分享数量
-* likeImageNode // 喜欢图标
-* likeNumberNode // 喜欢数量
+* coverImageNode // large image
+* titleNode // title
+* subTitleNode // subtitle
+* dateTextNode // publish time
+* shareImageNode // share icon
+* shareNumberNode // share count
+* likeImageNode // like icon
+* likeNumberNode // like count
 
 ```objc
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize{
@@ -382,21 +381,18 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
 }
 ```
 
-下面详细解释下布局，不过首先要明确的是，Texture 的这套布局方式遵守**从里到外**的布局原则，使用起来才会得心应手。
+Let's explain the layout in detail, but first it is important to be clear that Texture follows an **inside-out** layout principle. That is what makes it easy to use.
 
-1. 根据布局的原则，首先利用 `ASStackLayoutSpec` 布局 `分享图标` 和 `分享数量`、 `喜欢图标` 和 `喜欢数量`。
-2. 还是通过 `ASStackLayoutSpec` 包装第一步的两个的布局得到 `otherLayout` 布局对象。
-3. 依然是 `ASStackLayoutSpec` 包装`otherLayout`和 `发布时间`。注意这里设置横向的排列方式 `ASStackLayoutJustifyContentSpaceBetween`已到达两端布局的目的，最终返回 `bottomLayout`。
-4. 由于 `大图` 是网络图片，对于 Cell 来说，子视图的布局必能能决定其高度（Cell 宽度是默认等于 TableNode 的宽度），所以这里必须设置 `大图` 的高度，`ASRatioLayoutSpec` 设置了图片的高宽比。
-5. 接下来布局应该就是 `大图`、`标题`、`副标题`、`bottomLayout` 的一个纵向布局，可以发现这里的视图间距并不相同，这时候 `spacingBefore` 和 `spacingAfter` 就会很有用，它们用来分别设置元素在主轴上的前后间距。`self.titleNode.style.spacingBefore = 12.0f;` 意思就是 `标题` 相对于 `大图` 间距为 12。
-6. 最后通过一个 `ASInsetLayoutSpec` 设置一个边距。
+1. Following the layout principle, first use `ASStackLayoutSpec` to lay out the `share icon` and `share count`, as well as the `like icon` and `like count`.
+2. Use `ASStackLayoutSpec` again to wrap the two layouts from step 1 and obtain the `otherLayout` object.
+3. Use `ASStackLayoutSpec` again to wrap `otherLayout` and the `publish time`. Note that here the horizontal alignment is set to `ASStackLayoutJustifyContentSpaceBetween` to achieve edge-to-edge layout, and the final result is `bottomLayout`.
+4. Since the `large image` is a network image, and for a cell the subview layout determines its height (the cell width defaults to the TableNode width), we must set the image height here. `ASRatioLayoutSpec` sets the image's aspect ratio.
+5. Next, the layout should be a vertical stack of `large image`, `title`, `subtitle`, and `bottomLayout`. You can see that the spacing between these views is not the same. At this point, `spacingBefore` and `spacingAfter` become very useful, because they set the spacing before and after an element along the main axis. `self.titleNode.style.spacingBefore = 12.0f;` means the `title` has a spacing of 12 relative to the `large image`.
+6. Finally, use `ASInsetLayoutSpec` to set padding.
 
+You can see that not only `Node`, but `ASLayoutSpec` itself can also be used as a layout element, because any object that conforms to `<ASLayoutElement>` can be used as a layout element.
 
-可以看到不仅是 `Node`，`ASLayoutSpec` 本身也可以作为布局元素，这是因为只要是遵守了 `<ASLayoutElement>` 协议的对象都可以作为布局元素。
-
-
-
-### 案例三
+### Example 3
 
 ![image](/assets/images/Texture/Texture-1.jpg)
 
@@ -444,39 +440,33 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
     }
 ```
 
+To demonstrate `ASAbsoluteLayoutSpec`, here we use it for `node3`.
 
+Key points:
 
-为了演示 ASAbsoluteLayoutSpec 的使用，这里 node3 我们用 ASAbsoluteLayoutSpec 布局。
+1. Both nodes and layout specs can set the `style` property, because they both conform to `ASLayoutElement`
+2. When `spaceBetween` does not achieve the desired edge-to-edge alignment, try setting the current layout spec's `width` (as shown in the comment) or the `alignItems` of its parent layout object. In this example, that is `stackLayout.alignItems = .stretch`
+3. `ASAbsoluteLayoutSpec` must have an anchor point, unless the entire layout is absolute. In this example, the anchor point for `ASAbsoluteLayoutSpec` is `ASOverlayLayoutSpec`
 
-接下来说下要点：
-
-1. node 和 layoutSpec 都可以设置 style 属性，因为它们都准守 ASLayoutElement 协议
-2. 当 spaceBetween 没有达到两端对齐的效果，尝试设置当前 layoutSpec 的 `width`（如注释）或它的上一级布局对象的 alignItems，在例子中就是 `stackLayout.alignItems = .stretch`
-3. ASAbsoluteLayoutSpec 必须有落点（除非是只有绝对布局），例子中 ASAbsoluteLayoutSpec 着落点就在 ASOverlayLayoutSpec
-
-
-
-### 案例四
+### Example 4
 
 ![image](/assets/images/Texture/Texture-3.jpg)
 
 
 
-此案例主要为了演示 `flexGrow` 的用法，先介绍下 flexGrow 的作用（来自于简书[九彩拼盘](http://www.jianshu.com/p/0642dfe0e571)）
+This example is mainly used to demonstrate `flexGrow`. First, let's introduce what `flexGrow` does (from the Jianshu article [Nine-Color Platter](http://www.jianshu.com/p/0642dfe0e571)):
 
->该属性来设置，当父元素的宽度大于所有子元素的宽度的和时（即父元素会有剩余空间），子元素如何分配父元素的剩余空间。
+> This property controls how child elements allocate the remaining space of the parent when the parent is wider than the total width of all child elements.
 >
->flex-grow的默认值为0，意思是该元素不索取父元素的剩余空间，如果值大于0，表示索取。值越大，索取的越厉害。举个例子:
+> The default value of flex-grow is 0, which means the element does not claim any of the parent’s remaining space. If the value is greater than 0, the element does claim it. The larger the value, the more remaining space it claims. For example:
 >
->父元素宽400px，有两子元素：A和B。A宽为100px，B宽为200px，则空余空间为 400-（100+200）= 100px。
+> Suppose the parent is 400px wide, and there are two child elements A and B. A is 100px wide and B is 200px wide, so the remaining space is 400 - (100 + 200) = 100px.
 >
->如果A，B都不索取剩余空间，则有100px的空余空间。
+> If neither A nor B claims the remaining space, then there is 100px of empty space.
 >
->如果A索取剩余空间:设置flex-grow为1，B不索取。则最终A的大小为 自身宽度（100px）+ 剩余空间的宽度（100px）= 200px
+> If A claims the remaining space and flex-grow is set to 1 while B does not claim any, then the final size of A is its own width (100px) + the remaining space (100px) = 200px.
 >
->如果A，B都设索取剩余空间，A设置flex-grow为1，B设置flex-grow为2。则最终A的大小为 自身宽度（100px）+ A获得的剩余空间的宽度（100px * (1/(1+2))）,最终B的大小为 自身宽度（200px）+ B获得的剩余空间的宽度（100px * (2/(1+2))）
-
-
+> If both A and B claim the remaining space, with A's flex-grow set to 1 and B's set to 2, then the final size of A is its own width (100px) + the remaining space it receives (100px * (1/(1+2))), and the final size of B is its own width (200px) + the remaining space it receives (100px * (2/(1+2))).
 
 ```swift
      override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -486,7 +476,7 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
         
         [self.node2, self.node3, self.node4].forEach { (node) in
             let layout = ASRatioLayoutSpec(ratio: 2.0/3.0, child: node)
-            layout.style.flexGrow = 1 // 相当于宽度相等
+            layout.style.flexGrow = 1 // equivalent to equal widths
             imageLayoutArray.append(layout)
         }
         
@@ -506,27 +496,25 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
     }
 ```
 
-在这个案例中 node2、node3、node4 的宽度的总和小于父元素的宽度，所以为了达到宽度相同只需要设置三者的 flexGrow 相同就行（都为1），再通过 ASRatioLayoutSpec 固定各自的宽高比，那么对于这个三个控件来说最终的宽度是确定的。
+In this example, the total width of `node2`, `node3`, and `node4` is smaller than the parent width. So to make them the same width, we only need to set the same `flexGrow` value for all three (all 1), and then use `ASRatioLayoutSpec` to fix each aspect ratio. That way, the final width of these three controls is determined.
 
-
-
-### 案例五
+### Example 5
 
 ![image](/assets/images/Texture/Texture-2.jpg)
 
 
 
-此案例主要为了演示 `flexShrink` 的用法，同样还来自于简书[九彩拼盘](http://www.jianshu.com/p/0642dfe0e571)关于 flexShrink 的介绍
+This example is mainly used to demonstrate `flexShrink`. It also draws from the Jianshu article [Nine-Color Platter](http://www.jianshu.com/p/0642dfe0e571) for the explanation of `flexShrink`:
 
-> 该属性来设置，当父元素的宽度小于所有子元素的宽度的和时（即子元素会超出父元素），子元素如何缩小自己的宽度的。
+> This property controls how child elements shrink their width when the parent is narrower than the total width of all child elements.
 >
-> flex-shrink的默认值为1，当父元素的宽度小于所有子元素的宽度的和时，子元素的宽度会减小。值越大，减小的越厉害。如果值为0，表示不减小。
+> The default value of flex-shrink is 1. When the parent width is smaller than the sum of all child widths, the child widths will shrink. The larger the value, the more they shrink. If the value is 0, they do not shrink.
 >
-> 举个例子:父元素宽400px，有两子元素：A和B。A宽为200px，B宽为300px。则A，B总共超出父元素的宽度为(200+300)- 400 = 100px。
+> For example: the parent is 400px wide, and there are two child elements A and B. A is 200px wide and B is 300px wide. Then the total overflow is (200 + 300) - 400 = 100px.
 >
-> 如果A，B都不减小宽度，即都设置flex-shrink为0，则会有100px的宽度超出父元素。如果A不减小宽度:设置flex-shrink为0，B减小。则最终B的大小为 自身宽度(300px)- 总共超出父元素的宽度(100px)= 200px如果A，B都减小宽度，A设置flex-shirk为3，B设置flex-shirk为2。则最终A的大小为 自身宽度(200px)- A减小的宽度(100px * (200px * 3/(200 * 3 + 300 * 2))) = 150px,最终B的大小为 自身宽度(300px)- B减小的宽度(100px * (300px * 2/(200 * 3 + 300 * 2))) = 250px
+> If neither A nor B shrinks, that is, both have flex-shrink set to 0, then 100px will overflow the parent. If A does not shrink, with flex-shrink set to 0 and B does shrink, then the final size of B is its own width (300px) - the total overflow (100px) = 200px. If both A and B shrink, with A's flex-shrink set to 3 and B's set to 2, then the final size of A is its own width (200px) - the amount it shrinks (100px * (200px * 3/(200 * 3 + 300 * 2))) = 150px, and the final size of B is its own width (300px) - the amount it shrinks (100px * (300px * 2/(200 * 3 + 300 * 2))) = 250px.
 
-目前关于该属性最常见还是用于对文本的宽度限制，在上图中 textNode 和 displayNode 是两端对齐，而且需要限制文本的最大宽度，这时候设置 `flexShrink` 是最方便的。
+At present, the most common use of this property is limiting text width. In the image above, `textNode` and `displayNode` are aligned at both ends, and the text's maximum width needs to be constrained. In that case, setting `flexShrink` is the most convenient approach.
 
 ```swift
 override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -545,11 +533,11 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
     }
 ```
 
-**随便提一下的是如果 ASTextNode 出现莫名的文本截断问题，可以用 ASTextNode2 代替。**
+**As a side note, if `ASTextNode` shows unexplained text truncation issues, you can use `ASTextNode2` instead.**
 
-### 案例六
+### Example 6
 
-还算比较典型的例子
+A fairly typical example.
 
 ![image](/assets/images/Texture/ASDKDemo3.png)
 
@@ -563,8 +551,7 @@ override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec
     }
 ```
 
-利用 ASInsetLayoutSpec 是最好的解决方案，值得注意的是对于红色控件只需要设置向上和向左的间距，那么其他方向的可以用 `CGFloat(Float.infinity)` 代替，并不需要给出具体数值。
+Using `ASInsetLayoutSpec` is the best solution. It is worth noting that for the red control, you only need to set the top and left spacing; the other directions can be replaced with `CGFloat(Float.infinity)` and do not need specific values.
 
 
-
-最后，以上的案例已上传至在[TextureLayoutDemo](https://github.com/bawn/TextureLayoutDemo)。
+Finally, the examples above have been uploaded to [TextureLayoutDemo](https://github.com/bawn/TextureLayoutDemo).
