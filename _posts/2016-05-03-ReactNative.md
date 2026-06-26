@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "React Native杂谈"
+title: "React Native: A Few Thoughts"
 date: 2016-04-15
 comments: true
 categories: [React Native]
@@ -11,53 +11,53 @@ description: React Native
 ---
 ![image](/assets/images/ReactNative/react_native.png)
 
-和[reactivecocoa](https://github.com/ReactiveCocoa/ReactiveCocoa)一样，[react-native](https://github.com/facebook/react-native)也很早就开始关注了，之所以到前段时间才学习，原因有几点
+I had been following [react-native](https://github.com/facebook/react-native) for a long time, just like [reactivecocoa](https://github.com/ReactiveCocoa/ReactiveCocoa). The reason I only started learning it recently is because of a few factors:
 
-- 整个项目已经相对成熟
-- 国内外社区比较活跃
-- JavaScript和React学习成本并没有想象的那么高
+- The project is already relatively mature
+- The community is active both in China and abroad
+- The learning curve for JavaScript and React is not as high as I had imagined
 
-对前两个原因我觉得有必要详细说明下，下面的内容我会用RN缩写来代替react-native
+I think the first two reasons deserve a more detailed explanation, so from here on I will use RN as shorthand for react-native.
 
-RN的更新频率很高，从目前来看差不多半个多月一个版本，从去年的3月底发布一个版本`0.1.0`以来到现在的`0.25.0`为止一共发布了多达82个版本，当然这里面包含很多rc版，可见facebook对RN的重视程度。
+RN updates very frequently. From what I can see, there is roughly one new version every half month. Since the release of `0.1.0` at the end of March last year, a total of 82 versions have been released up to `0.25.0`, and that number includes many release candidates. That alone shows how much importance Facebook places on RN.
 
-其实影响一个项目的流行程度很大一部分取决于其社区的活跃程度，RN社区现在这么活跃也是得益于facebook的推广，比如这两年的F8大会、开源基于Atom的IDE：[nuclide](https://github.com/facebook/nuclide)、第三方库搜索网站[js.coach](https://js.coach/react-native)，以及自家的`Facebook Ads Manager`和`Facebook Groups`项目使用RN开发等，国内的也有不错的交流平台，比如[react native中文社区](http://reactnative.cn/)。另外github上两个RN学习资料、组件等的集合项目[awesome-react-native](https://github.com/jondot/awesome-react-native)和 [react-native-guide](https://github.com/ele828/react-native-guide)都是不错的指引。
+In fact, a large part of an open source project's popularity depends on how active its community is. RN's community is so active now largely thanks to Facebook's promotion, such as the F8 conferences in recent years, the open source Atom-based IDE [Nuclide](https://github.com/facebook/nuclide), the third-party package search site [js.coach](https://js.coach/react-native), and Facebook's own projects such as `Facebook Ads Manager` and `Facebook Groups`, both of which were developed with RN. There are also good communities in China, such as the [React Native Chinese community](http://reactnative.cn/). In addition, two useful GitHub collections for RN learning resources and components, [awesome-react-native](https://github.com/jondot/awesome-react-native) and [react-native-guide](https://github.com/ele828/react-native-guide), are both good references.
 
-我挑了几个大家比较关心的问题一一说下自己的看法和理解
+I picked a few questions that many people care about and shared my own thoughts and understanding below.
 
-### 学习成本
+### Learning Curve
 
-我想对于学习一项新技能，都会首先去了解需要什么基本条件。对于RN来说，需要的当然就是JavaScript和React基础，但我并没有刻意的去学习JavaScript和React，而是直接上手RN的同时了解和学习这两样。个人认为对于有开发经验的程序员来说，语法并不是问题，即使对于JavaScript这种我认为很"随便"的语言也是一样，所以当你想学习RN但是没有JavaScript和React经验，根本不用担心因为没有基础给你带来多大的阻碍。
+When learning a new skill, the first thing most people do is figure out what the prerequisites are. For RN, those prerequisites are naturally JavaScript and React. But I did not deliberately study JavaScript and React first; instead, I started using RN directly while learning both along the way. Personally, I think that for developers with experience, syntax is not really a problem. That is true even for JavaScript, which I consider a very "casual" language. So if you want to learn RN but do not have JavaScript or React experience, there is no need to worry that the lack of a foundation will block you too much.
 
-### 性能
+### Performance
 
-关于性能问题有很多文章都分析过，我只说自己的主观感受，对于iOS而言，只要不是非常复杂的页面性能基本接近native，不过有时候你可能会在页面切换的时候察觉到略微的卡顿。安卓可能是平台或者RN优化的问题，目前性能表现不是非常理想，不过完全可以接受。这里需要提一下，RN上的动画会对性能造成一定的影响，所以并不建议使用大量动画，官网也有[文档](https://facebook.github.io/react-native/docs/performance.html#content)阐述了性能问题以及出现的原因，如果遇到性能问题，强烈建议仔细阅读。
+There are already many articles analyzing performance, so I will only talk about my subjective impression. On iOS, as long as the page is not extremely complex, performance is basically close to native. Sometimes you may notice a slight stutter during page transitions. Android may have platform issues or RN optimization issues, and its performance is currently not ideal, but it is still completely acceptable. One thing to mention is that animations on RN do affect performance to some extent, so I do not recommend using a large number of animations. The official website also has [documentation](https://facebook.github.io/react-native/docs/performance.html#content) explaining performance issues and their causes. If you run into performance problems, I strongly recommend reading it carefully.
 
-### 实际应用
+### Real-World Usage
 
-完全用RN来写一个商业项目我想会遇到以下问题：
+If you try to build a commercial project entirely with RN, I think you will run into the following issues:
 
-* 多少会涉及到native平台的代码，除非你的项目非常简单，没有涉及到第三方平台(第三方分享、登录)，没有复杂的页面，没有复杂的处理，没有复杂的动画。举个例子，比如APP有清除缓存功能，那么你必须得写两套代码，个人认为无论RN迭代到什么程度，都还是有无法同时满足两个平台的情况，这时候就需要依靠第三方库了。
-* 平台之间的UI差异，RN的理念是`write once, run anywhere`，所以你还是需要做好适配平台的准备，这是几乎也是无法避免的，另外可能相同的控件在不同平台上的表现也有差异，我曾经遇到过`TextInput`控件的`placeholder`位置在两个平台下位置不同情况。
-* 动画，前面我也提到动画对于性能会存在一定的影响，而且复杂的动画对于RN来说是非常困难的
-* RN本身的bug问题，这个问题或许在早期版本尤为突出，一旦遇到只能寄希望于RN团队尽快解决，这种对于商业项目就较为麻烦了
+* You will inevitably need some native platform code unless your project is very simple and does not involve third-party platforms (sharing, login), complex pages, complex logic, or complex animations. For example, if the app has a clear cache feature, you must write two sets of code. Personally, I think that no matter how far RN evolves, there will still be cases where it cannot satisfy both platforms at the same time, and at those times you will need to rely on third-party libraries.
+* UI differences between platforms. RN's philosophy is `write once, run anywhere`, so you still need to prepare for platform adaptation. That is almost unavoidable. Also, the same control may behave differently on different platforms. I once ran into a case where the `placeholder` position of `TextInput` was different on iOS and Android.
+* Animations. I mentioned earlier that animations can affect performance to some extent, and complex animations are very difficult for RN.
+* Bugs in RN itself. This may have been especially prominent in the early versions. Once you encounter one, all you can do is hope the RN team fixes it quickly, and that can be inconvenient for commercial projects.
 
-另外学习过程中，我发现比较几个有意思的地方：
+During the learning process, I also found a few interesting things:
 
-1. [ListView](https://facebook.github.io/react-native/docs/listview.html#content)在iOS层是基于UIScrollView封装的
-2. [Text](https://facebook.github.io/react-native/docs/text.html#content)在iOS层是UIView，并不是UILabel或者是UITextView，RN是通过Draw方法把文字绘制到视图上的，因为这样会有更好的性能表现，随便提一下iPhone自带的日历应用的也是这样的处理方式，详情：[简书](http://www.jianshu.com/p/1881c12ae33e)
-3. [TouchableHighlight](http://reactnative.cn/docs/0.24/touchablehighlight.html#content)等在iOS层实际上是基于`UIGestureRecognizer`的封装并不是UIButton
+1. [ListView](https://facebook.github.io/react-native/docs/listview.html#content) on iOS is wrapped around `UIScrollView`
+2. [Text](https://facebook.github.io/react-native/docs/text.html#content) on iOS is `UIView`, not `UILabel` or `UITextView`. RN draws text onto the view through the Draw method because that gives better performance. By the way, the Calendar app that comes with the iPhone uses the same approach. Details: [Jianshu](http://www.jianshu.com/p/1881c12ae33e)
+3. [TouchableHighlight](http://reactnative.cn/docs/0.24/touchablehighlight.html#content) and similar components on iOS are actually wrappers around `UIGestureRecognizer`, not `UIButton`
 
-### 工具
+### Tools
 
-对于初学者，MAC平台推荐使用编辑器：[Atom](https://atom.io/)，配合前面提到的基于Atom的IDE：[nuclide](https://github.com/facebook/nuclide)，再加上几个Atom插件：
+For beginners on macOS, I recommend the editor [Atom](https://atom.io/), together with the Atom-based IDE [Nuclide](https://github.com/facebook/nuclide) mentioned earlier, plus a few Atom plugins:
 
 * [language-babel](https://github.com/gandm/language-babel)
 * [language-javascript-jsx](https://github.com/subtleGradient/language-javascript-jsx)
 * [react](https://github.com/orktes/atom-react)
 
-如果觉得自动补全很有必要，可以试试这两个插件[react-snippets](https://atom.io/packages/react-snippets)和[atom-react-native-autocomplete](https://atom.io/packages/atom-react-native-autocomplete)
+If you think autocomplete is important, you can also try these two plugins: [react-snippets](https://atom.io/packages/react-snippets) and [atom-react-native-autocomplete](https://atom.io/packages/atom-react-native-autocomplete)
 
-### 笔记
+### Notes
 
-在用国际版的印象笔记的同学，可以添加我的[RN笔记本](https://www.evernote.com/pub/lingchen621/reactnative)，我会不定期把总结写到上面。
+If you use the international version of Evernote, you can add my [RN notebook](https://www.evernote.com/pub/lingchen621/reactnative). I will periodically add my notes there.
