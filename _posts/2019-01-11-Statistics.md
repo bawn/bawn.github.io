@@ -1,20 +1,20 @@
 ---
 layout: post
-title: "关于埋点"
+title: "Analytics Instrumentation"
 date: 2019-01-11
 comments: true
 categories: [iOS]
-tags: [埋点]
-keywords: [埋点]
+tags: [analytics]
+keywords: [analytics]
 publish: true
-description: 埋点
+description: analytics instrumentation
 ---
 
-这篇文章主要介绍在本人在公司项目上埋点实现的一些心得，在项目早期我们完全依赖于第三方的无痕埋点技术，客户端开发人员只需要做一些简单的工作就能满足 BI 部门对数据的需求。但随着业务增长，对数据的准确性和精细化的要求越来越高，之后不得不转向手动埋点（基于[神策](https://www.sensorsdata.cn)）。
+This article mainly shares some of the lessons I learned while implementing analytics instrumentation in a company project. In the early stage of the project, we relied entirely on third-party automatic analytics tracking. Client developers only needed to do a small amount of work to satisfy the BI team's data requirements. But as the business grew, the requirements for data accuracy and granularity became higher and higher, so we had to switch to manual tracking based on [Sensors Analytics](https://www.sensorsdata.cn).
 
-很多时候我们需要根据具体业务来选择适合的埋点方案，在 [火球买手](https://itunes.apple.com/cn/app/%E7%81%AB%E7%90%83%E4%B9%B0%E6%89%8B-%E5%B8%AE%E4%BD%A0%E9%80%89%E5%A5%BD%E8%B4%A7/id1070842761?mt=8) 这个项目上 BI 部门对埋点数据要求可以总结为一句话：『从哪里来到哪里去』，比如在 Timeline 中点击一篇文章进入详情页，那么 Timeline 就是『从哪里来』，详情页就是『到哪里去』，当然『从哪里来』不只需要一个维度定位，有时候需要两三个维度才能定位。
+In many cases, we need to choose an analytics approach based on the specific business. In the [Huoqiu Buyer](https://itunes.apple.com/cn/app/%E7%81%AB%E7%90%83%E4%B9%B0%E6%89%8B-%E5%B8%AE%E4%BD%A0%E9%80%89%E5%A5%BD%E8%B4%A7/id1070842761?mt=8) project, the BI team's requirement for tracking data can be summarized in one sentence: "from where to where." For example, if a user taps an article in the Timeline and enters the detail page, then the Timeline is the "from where" and the detail page is the "to where." Of course, "from where" is not always identifiable with just one dimension; sometimes it takes two or three dimensions to locate it precisely.
 
-下面举一些具体的例子，首先『频道主页』是项目中比较常见的页面，它对应的 Model 是 Channel，然后当任何点击进入的频道主页的事件触发后都需要上报以下数据
+Here are some concrete examples. First, the "channel home page" is a common page in the project, and its corresponding model is Channel. When any event for entering a channel home page is triggered, the following data must be reported:
 
 ```
 {
@@ -25,9 +25,9 @@ description: 埋点
 }
 ```
 
-`page_name`指的是当前的 ViewController 名称，`module_name`主要用于区分同一个页面内的不同入口，这样子就能确定『从哪里来』，`channel_name` 和 `channel_id` 数据来自于 Channel，至于『到哪里去』这里就用埋点的 key 来表明，比如是 ChannelClick。
+`page_name` refers to the current ViewController name. `module_name` is mainly used to distinguish different entry points on the same page, so that we can identify the "from where." `channel_name` and `channel_id` come from Channel. As for the "to where," we express it through the tracking key, such as ChannelClick.
 
-频道主页在 APP 中入口众多，即使在不考虑埋点的情况下，一个统一的入口也是必要的
+The channel home page has many entry points in the app. Even without considering analytics, a unified entry method is necessary:
 
 ```swift
 extension UIViewController {
@@ -37,7 +37,7 @@ extension UIViewController {
 }
 ```
 
-显然这样的方法根本无法满足埋点上的需求，改造一下：
+Clearly, this method cannot satisfy analytics requirements, so let's refactor it:
 
 ```swift
 extension UIViewController {
@@ -54,20 +54,20 @@ extension UIViewController {
 }
 ```
 
-大多数情况下入口函数只接受一个具象参数是行不通的，因为随着项目的开发业务的迭代总有一些其他的模型被加入，它们同样带有能够跳转至频道主页的 id 属性，这个后面会提到。然后是 pageName：
+In most cases, it does not work to make the entry method accept only one concrete parameter, because as the project evolves, other models will be introduced, and they may also contain an id that can navigate to the channel home page. I will come back to this later. Next is pageName:
 
 ```swift
 extension UIViewController {
     var pageName: String {
         switch self {
 			case is ChannelDetailController:
-            	return "频道主页"
+	            return "Channel Home"
         }
     }
 }
 ```
 
-最后在具体的跳转处设置 module_name ，事实上 module_name 不属于 Channel，至于为什么需要和模型绑定，后面会提到 
+Finally, set module_name at the specific navigation point. In fact, module_name does not belong to Channel. I will explain later why it needs to be bound to the model:
 
 ```swift
 @objc func buttonAction(_ sender: Any) {
@@ -76,11 +76,11 @@ extension UIViewController {
 }
 ```
 
-整体看下来虽然可以应付点击进入频道主页的埋点，但是还是存在以下问题
+Overall, this can handle analytics for entering the channel home page, but there are still the following problems:
 
-#### 入口函数不够抽象
+#### The entry method is not abstract enough
 
-在实际开发中接收不同的数据模型跳转到同一个页面的情况应该不少见，并且入口函数也是因为埋点把参数从相对抽象的 String 替换成了具象的 Channel，所以抽象 model 是首先要做的。无论接受什么类型参数，实际的跳转只需要用到 id 这一个字段，那么让一个只有带有 id 属性的 protocol 去约束模型再合适不过了。
+In real development, it is common to receive different data models and navigate to the same page. Because analytics forced the entry method to replace a relatively abstract String with a concrete Channel, abstracting the model is the first thing to do. No matter what type of parameter is accepted, the actual navigation only needs one field: id. So it makes much more sense to constrain models with a protocol that only requires an id property.
 
 ```swift
 protocol CommonModelType {
@@ -88,19 +88,19 @@ protocol CommonModelType {
 }
 ```
 
-然后让 Channle 遵守这个协议，利用 extension 是为了看起来更解耦
+Then make Channel conform to this protocol. Using an extension makes it look more decoupled:
 
 ```swift
 extension Channel: CommonModelType{}
 ```
 
-这时候入口函数就是这样
+At this point, the entry method becomes:
 
 ```swift
 func pushToChannellDetail(_ model: CommonModelType?)
 ```
 
-可以接受任何有 id 属性的模型，为了更抽象，甚至可以让 String 也遵守这个协议
+It can accept any model with an id property. To make it even more abstract, you can even let String conform to this protocol:
 
 ```swift
 extension String: CommonModelType {
@@ -112,9 +112,9 @@ extension String: CommonModelType {
 
 
 
-#### 数据提供方式不够优雅
+#### The data provisioning approach is not elegant enough
 
-埋点数据除了 pageName 不属于 model 以外，其他都属于 model 本身的属性（module_name 属于额外添加），所以和参数一样，同样用 protocol 约束 Channel ，让 Channel 拥有一个直接用于提供数据的属性。
+Except for pageName, the analytics data belongs to the model itself. `module_name` is an extra field, but it is still part of the tracked data. So, just like the parameters, we can use a protocol to constrain Channel and give it a property that directly provides analytics data.
 
 ```swift
 protocol AnalyticsModelType {
@@ -122,7 +122,7 @@ protocol AnalyticsModelType {
 }
 ```
 
-让 Channel 同时遵守这两个协议，并且添加 analytics 属性
+Let Channel conform to both protocols and add an analytics property:
 
 ```swift
 extension Channel: CommonModelType, AnalyticsModelType {
@@ -137,7 +137,7 @@ extension Channel: CommonModelType, AnalyticsModelType {
 }
 ```
 
-最后完整的入口函数是这样的
+The final entry method looks like this:
 
 ```swift
 extension UIViewController {
@@ -160,16 +160,16 @@ extension UIViewController {
 }
 ```
 
-别忘记还有`module_name`，前面说过 module_name 主要用于区分同一个页面内的不同入口，比如页面内A和B入口都会触发 ChannelClick 事件，他们的 module_name 分别是 "A" 和 "B"，回到前面设置 `module_name` 的地方，module_name 显然和业务耦合在了一起
+Do not forget `module_name`. As mentioned earlier, `module_name` is mainly used to distinguish different entry points on the same page. For example, entry points A and B on the page both trigger the ChannelClick event, and their module_name values are "A" and "B". Looking back at where `module_name` is set above, it is clear that module_name is tightly coupled to business logic:
 
 ```swift
 @objc func buttonAction(_ sender: Any) {
-    model.module_name = "你可能想关注"
+    model.module_name = "You may want to follow"
     pushToChannelDetailController(model)
 }
 ```
 
-在埋点方案设计的前期最头痛的是怎么处理 module_name，因为从含义上来说 module_name 应该属于视图层面，它不应该绑定到 model 上，但是仔细思考后发现如果把 module_name 绑定到 model 上可以做到足够的低耦合，因为 module_name 在绝大多数情况下在数据返回后已经明确了，比如 "首页时间线" 这个 module_name 我们可以在获取服务端数据后直接绑定到对应的 model 上，想象一下一个页面上的模块划分从数据结构上来说是不是已经明确了，所以说 module_name 甚至可以由服务端直接给出。比如在服务端返回数据之后设置 module_name
+The most frustrating part in the early design of an analytics solution is how to handle module_name. Semantically, module_name should belong to the view layer and not be bound to the model. But after some thought, binding module_name to the model can still achieve low coupling, because in most cases module_name is already known after the data returns. For example, the module_name "Home Timeline" can be bound directly to the corresponding model after fetching server data. If you think about module division on a page from the perspective of the data structure, it is already clearly defined. In other words, module_name can even be provided directly by the server. For example, set module_name after the server response comes back:
 
 ```swift
     func brandFeed() -> [HQBrandList] {
@@ -182,17 +182,17 @@ extension UIViewController {
     }
 ```
 
-这样子一来，大部分情况下 module_name 都可以通过这种方式设置，对的，这只是大部分情况下，其他情况后面会提到。
+In this way, module_name can be set like this in most cases. Yes, only most cases. I will mention the remaining cases later.
 
 
 
-总的来说入口函数够抽象，无论后期增加多少种模型只要它遵循`CommonModelType`即可，甚至对于不熟悉项目的人来说直接传入 id 也是可以正常跳转的。埋点的细节也被隐藏到了入口函数内，而需要上报的数据又由相应的模型负责提供只要它遵循`AnalyticsModelType`，module_name 通过在对应的数据返回处设置即可。
+In short, the entry method is abstract enough. No matter how many model types are added later, as long as they conform to `CommonModelType`, navigation will still work. Even for someone unfamiliar with the project, passing in an id directly can still navigate correctly. The analytics details are hidden inside the entry method, and the data that needs to be reported is provided by the corresponding model as long as it conforms to `AnalyticsModelType`. module_name can be set where the corresponding data is returned.
 
 
 
-### 浏览事件
+### Browse events
 
-除了上面说的 ChannelClick 这样子的点击事件，我们还有一种浏览事件，比如浏览频道详情页：ChannelBrowse，也就是在频道详情页完全展现出来后就会触发这个埋点，它所需要携带的信息有
+In addition to the click events like ChannelClick described above, we also have browse events, such as browsing the channel detail page: ChannelBrowse. This event is triggered when the channel detail page is fully displayed, and it needs to carry the following information:
 
 ```
 {
@@ -203,9 +203,9 @@ extension UIViewController {
 }
 ```
 
-`previous_page_name`代表的是上一个页面的名称，`previous_module_name`是上一个页面内的 module_name，在这里暂且不讨论它和 ChannelClick 到底有什么区别。对于 previous_page_name 我们可以在 navigationController?.viewControllers 里面很简单的获取到，基于这种逻辑当时我当时做了一个错误的决定，就是用一个数组中存放 module_name，这数组初始化就有 N 个空的 module_name，每当有跳转事件发生就在当前的 index 上设置上 module_name，之后一旦有需要就通过当前 viewcontroller 的 index 在这个数组中取到 previous_module_name，但是并不是所有的跳转都会刷新 module_name，也就是并没有把 module_name 设置为空，还有关于 parentViewController 的问题，总之通过单例数组的方案有太多的弊端。
+`previous_page_name` represents the name of the previous page, and `previous_module_name` is the module_name from the previous page. I will not discuss the exact difference between this and ChannelClick here. We can easily get previous_page_name from navigationController?.viewControllers. Based on this logic, I once made a wrong decision: I used an array to store module_name. The array was initialized with N empty module_name values. Whenever a navigation event occurred, I set the module_name at the current index. Later, whenever I needed it, I would use the current viewController's index to fetch previous_module_name from the array. However, not all navigation events refresh module_name, which means module_name was not reset to empty. There was also the issue of parentViewController. In short, the singleton-array approach had too many drawbacks.
 
-总的来说，类似于 ChannelBrowse 这样的事件获取到 previous_module_name 才是关键，除了前面提到的方案，把 previous_module_name 绑定到当前的 viewController 似乎是一种更好的方案，具体就是在通过页面跳转的时候直接把当前的 module_name 绑定到目标 viewController 上。
+In general, for events like ChannelBrowse, getting previous_module_name is the key. Besides the approach mentioned above, binding previous_module_name to the current viewController seems like a better solution. Specifically, when navigating between pages, directly bind the current module_name to the target viewController.
 
 ```swift
 extension UIViewController {
@@ -220,7 +220,7 @@ extension UIViewController {
 }
 ```
 
-跳转的时候绑定数据
+Bind data during navigation:
 
 ```swift
 func pushToReviewDetailController(_ model: HQCommonModelType?) {
@@ -231,19 +231,19 @@ func pushToReviewDetailController(_ model: HQCommonModelType?) {
 
         let viewController = ReviewDetailViewController.instantiateFromSB
         viewController.reviewId = model._id
-  			let module_name = (model as? AnalyticsModelType)?.module_name ?? ""
+			let module_name = (model as? AnalyticsModelType)?.module_name ?? ""
         viewController.previousValue = (pageName, module_name)
         navigationController?.pushViewController(viewController, animated: true)
     }
 ```
 
-执行 ChannelBrowse 浏览事件
+Trigger the ChannelBrowse browse event:
 
 ```swift
 SensorsAnalyticsSDK.track(key: .channelBrowse(model), page: self)
 ```
 
-具体实现
+Implementation:
 
 ```swift
 static func track(key: SensorsAnalyticsKey, page: UIViewController? = nil) {
