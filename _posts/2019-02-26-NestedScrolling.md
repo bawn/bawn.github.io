@@ -1,46 +1,46 @@
 ---
 layout: post
-title: "关于嵌套滚动现实的讨论"
+title: "A Discussion on Nested Scrolling in Practice"
 date: 2019-02-26
 comments: true
 categories: [iOS]
-tags: [嵌套滚动]
-keywords: [嵌套滚动]
+tags: [nested scrolling]
+keywords: [nested scrolling]
 publish: true
-## description: 嵌套滚动
+## description: nested scrolling
 ---
 
 
-本文要讨论的是类似于[即刻](https://www.ruguoapp.com/)、[淘票票](https://www.taopiaopiao.com/)首页，[抖音](https://www.douyin.com/)、[简书](https://www.jianshu.com/)个人主页这样的嵌套滚动效果，事实上网上已经有很多的相关的文章，比如：
+This article discusses nested scrolling experiences like the ones you see on the home pages of [Jike](https://www.ruguoapp.com/), [Taopiaopiao](https://www.taopiaopiao.com/), and the personal profile pages of [Douyin](https://www.douyin.com/) and [Jianshu](https://www.jianshu.com/). In fact, there are already many related articles online, for example:
 
 
-- [嵌套UIScrollview的滑动冲突解决方案](https://www.jianshu.com/p/040772693872)
+- [A solution to scroll conflicts in nested UIScrollView setups](https://www.jianshu.com/p/040772693872)
 
-- [iOS 嵌套UIScrollview的滑动冲突另一种解决方案](https://www.jianshu.com/p/df01610b4e73)
+- [Another solution to scroll conflicts in nested UIScrollView setups on iOS](https://www.jianshu.com/p/df01610b4e73)
 
-- [多层 UIScrollView 嵌套滚动解决方案](https://jiar.me/article/Multi-tier-UIScrollView-nested-scrolling-solution)
+- [A solution for multi-level UIScrollView nested scrolling](https://jiar.me/article/Multi-tier-UIScrollView-nested-scrolling-solution)
 
 
 
-而且绝大多数的文章都是从如何解决手势冲突出发给出相应的解决方案，原因是他们大多数都采用了三级 Scrollview 的解决方案，如下图
+Most of those articles focus on how to solve gesture conflicts and then present matching solutions, because the majority of them use a three-level ScrollView structure like the one below.
 
 ![image1](/assets/images/NestedScrolling/NestedScrolling-1.png)
 
 ​    
 
-- 蓝色视图：一级 ScrollView
+- Blue view: first-level ScrollView
 
-- 红色视图：HeaderView
+- Red view: HeaderView
 
-- 绿色视图：MenuView
+- Green view: MenuView
 
-- 橘色视图：二级 ScrollView
+- Orange view: second-level ScrollView
 
-- 黑色、深黑、浅黑：三级 ScrollView
+- Black, dark black, light black: third-level ScrollView
 
 
 
-可以看到三级 ScrollView 和 一级 ScrollView都需要在纵向滚动，所以重点要解决的就是这里的滚动冲突，具体的细节我就不再赘述，大家还可以参考[HGPersonalCenter](https://github.com/ArchLL/HGPersonalCenter)这个项目，里面有详细的注释。下面的视图结构是淘票票首页，可以比较清楚看到采用的是三级 ScrollView 的形式
+You can see that both the first-level ScrollView and the third-level ScrollView need to scroll vertically, so the main problem is the scrolling conflict between them. I will not go into the implementation details here; you can also refer to [HGPersonalCenter](https://github.com/ArchLL/HGPersonalCenter), which contains detailed comments. The view hierarchy below is Taopiaopiao's home page, and it clearly shows a three-level ScrollView structure.
 
 ![image2](/assets/images/NestedScrolling/NestedScrolling-2.png)
 
@@ -48,15 +48,14 @@ publish: true
 
 
 
-- 上层的 MVNestTableView：一级 ScrollView
-- 中间的 UIScrollView：二级 ScrollView
-- 下层的 MVNestTableView：三级 ScrollView
+- Top MVNestTableView: first-level ScrollView
+- Middle UIScrollView: second-level ScrollView
+- Bottom MVNestTableView: third-level ScrollView
 
 
 
 
-
-之所以在前面给出了四个例子，除了淘票票和简书采用的三级 ScrollView 方案以外还有抖音和即刻采用的二级 ScrollView 方案，并且即刻在体验上更完美，这个后面会讲到。二级 ScrollView 方案的大致结构如下
+The reason I gave four examples above is that, in addition to the three-level ScrollView approach used by Taopiaopiao and Jianshu, Douyin and Jike use a two-level ScrollView approach, and Jike's user experience is even better. I will explain that later. The rough structure of the two-level ScrollView solution is shown below.
 
 
 
@@ -64,97 +63,90 @@ publish: true
 
 
 
-- 蓝色视图：一级 ScrollView
-- 黑色、深黑、浅黑：二级 ScrollView
-- 红色视图：HeaderView
-- 绿色视图：MenuView
+- Blue view: first-level ScrollView
+- Black, dark black, light black: second-level ScrollView
+- Red view: HeaderView
+- Green view: MenuView
 
-下面是 5.x 版本即刻首页的结构，可以清楚的看到即刻采用的是二级 ScrollView 的方案
+Below is the structure of the Jike home page in version 5.x. You can clearly see that Jike uses the two-level ScrollView solution.
 
 ![image3](/assets/images/NestedScrolling/NestedScrolling-3.png)
 
 
 
-当然通过点击状态栏看也可以粗略判断实现方式，比如淘票票在点击状态栏后视图只会滚动到子 ScrollView 的顶部而不是最外面 ScrollView 的，简书虽然滚动到最外层的顶部但效果明显不够自然，原因就是三级 ScrollView 在纵向没有延伸到顶部，抖音和即刻在点击状态栏返回到顶部的效果则非常自然。
+You can also roughly judge the implementation by tapping the status bar. For example, after tapping the status bar, Taopiaopiao only scrolls to the top of the child ScrollView rather than the outermost ScrollView. Jianshu does scroll to the top of the outermost layer, but the effect is clearly not natural enough, because the three-level ScrollView does not extend all the way to the top vertically. Douyin and Jike, on the other hand, return to the top very naturally when the status bar is tapped.
 
-从整体结构上来看即刻只有二级 ScrollView，所以在纵向上 ChildScrollView 会完全接管手势，横向滚动时又由 MainScrollView 控制，这样子带来的好处在于无需关心手势冲突问题，但要实现前面提到的效果还必须处理是以下问题：
-
-
-
-- HeaderView 和 MenuView 的位置需要根据 ChildScrollView 的滚动而改变
-
-- 在切换的 Tab 的时候需要同步下一个 ChildScrollView 的 offset
-
-- ChildScrollView 必须在顶部留出 HeaderView 和 MenuView 高度总和的空白区域
-
-- HeaderView 不能拦截滚动手势
+From the overall structure, Jike only uses two levels of ScrollView. Vertically, the ChildScrollView fully takes over the gesture; horizontally, MainScrollView handles the scrolling. The benefit is that there is no need to worry about gesture conflicts. However, to achieve the effects mentioned above, you still need to handle the following issues:
 
 
 
-在这里就不给出具体的实现细节，文章后面最后有通过两种方案实现的开源库，欢迎 Star。虽然即刻和抖音采用的都是这种二级 ScrollView 的方案，但即刻在体验上更好，比如抖音的个人主页如果手指开始滚动的地方有可交互的控件（Tab栏），那么这时候滑动是会失效的，还有在切换Tab后将视图下拉滚动到顶部然后返回到之前的Tab页，抖音是直接返回到了原始的位置而即刻还是能保留之前进度。
+- The positions of HeaderView and MenuView must change according to the ChildScrollView's scrolling
+
+- When switching tabs, the next ChildScrollView's offset must be synchronized
+
+- ChildScrollView must reserve blank space at the top equal to the combined height of HeaderView and MenuView
+
+- HeaderView must not intercept scroll gestures
 
 
 
-**头部滚动失效解决方案**
-
-即刻为了达到完美的效果，在每个 ChildScrollView 顶部都添加了 HeaderView 和 MenuView，这样子作为一个整体，即使开始触摸的地方有可交互控件也可以上下滚动。然后在左右滑动的时又让ChildScrollView 内的 HeaderView 和 MenuView 隐藏，当停止滚动的时让原本在外层 ScrollView 内的 HeaderView 和 MenuView 显示。
+I will not go into implementation details here. At the end of the article, I provide open source libraries that implement both approaches. Feel free to give them a Star. Although both Jike and Douyin use this two-level ScrollView approach, Jike's experience is better. For example, on Douyin's profile page, if the point where the finger starts dragging is over an interactive control, such as the tab bar, the swipe gesture will fail. Also, after switching tabs, dragging the view down to the top and then returning to the previous tab, Douyin returns directly to the original position, while Jike can preserve the previous progress.
 
 
 
-**保留进度解决方案**
+**Solution for disabled scrolling at the top**
 
-关于保留进度首先要做的就是判断当前 ChildScrollView 是不是处于一种特殊状态，这种状态就是 offset.y的值是否大于 HeaderView 的偏移量，然后再通过判断 ChildScrollView 当前的滚动方向，来决定是否要调整 HeaderView 和 MenuView 的位置。
-
-
-
-对比两个方案最终的实现各有优缺点
-
-#### 方案一
-
-优点：
-
-- 无障碍配合使用第三方下拉刷新库
-
-- ChildViewController 无需额外设置
+To achieve a perfect experience, Jike adds HeaderView and MenuView to the top of each ChildScrollView. That way, the whole area can scroll vertically even if the initial touch starts on top of an interactive control. Then, when scrolling horizontally, the HeaderView and MenuView inside ChildScrollView are hidden, and when scrolling stops, the HeaderView and MenuView that originally lived in the outer ScrollView are shown.
 
 
 
-缺点：
+**Solution for preserving scroll progress**
 
-* 实现较复杂
-
-- 滚动有细微的停顿感
-
-- 切换Tab不能保留进度
-
-- 点击状态栏不能返回到顶部
+To preserve progress, the first thing to do is determine whether the current ChildScrollView is in a special state. That state is whether the value of offset.y is greater than the HeaderView offset. Then, by checking the current scrolling direction of ChildScrollView, you can decide whether the positions of HeaderView and MenuView should be adjusted.
 
 
 
-#### 方案二
+The two solutions each have their own strengths and weaknesses.
 
-优点：
+#### Solution 1
 
-- 实现简单
+Advantages:
 
-- 滚动无停顿感
+- Works nicely with third-party pull-to-refresh libraries
 
-- 切换Tab可保留进度
-
-- 点击状态栏可返回到顶部
+- ChildViewController does not require extra setup
 
 
 
-缺点
+Disadvantages:
 
-- ChildViewController 需要额外的设置（ChildScrollView 必须在顶部留出 HeaderView 和 MenuView 高度）
-
-- 下拉刷新只能在 ChildViewController 内实现
-
-
-
-这里要提的是，由于方案二中 MainScrollView 并不会在纵向有滚动，所以下拉刷新必须放在 ChildViewController 内实现，但又因为 HeaderView 和 MenuView 需要根据 ChildScrollView 的偏移而移动，在配合[MJRefresh](https://github.com/CoderMJLee/MJRefresh)时它们的偏移有明显的Bug（在本文发布前我并没深究解决方案），或许即刻也是因为这个原因而采用上面提到的解决办法。
+* More complex to implement
+- Slight stutter during scrolling
+- Tab switching cannot preserve progress
+- Tapping the status bar cannot return to the top
 
 
 
-以上两种解决方案的开源库：**方案一：[Aquaman](https://github.com/bawn/Aquaman)**、**方案二：[Shazam](https://github.com/bawn/Shazam)**，关于 MenuView 都设计成了交由开发者实现，这是因为即使 MenuView 集成各种样式的也难满足设计上的千奇百怪的要求，参考我的 Demo 就能很快实现一个自己想要的效果。
+#### Solution 2
+
+Advantages:
+
+- Simple to implement
+- Smooth scrolling with no stutter
+- Tab switching can preserve progress
+- Tapping the status bar can return to the top
+
+
+
+Disadvantages
+
+- ChildViewController requires extra setup (ChildScrollView must leave space at the top equal to the height of HeaderView and MenuView)
+- Pull-to-refresh can only be implemented inside ChildViewController
+
+
+
+One thing to note is that, because MainScrollView does not scroll vertically in Solution 2, pull-to-refresh must be implemented inside ChildViewController. But since HeaderView and MenuView need to move according to ChildScrollView's offset, there is a noticeable bug when using [MJRefresh](https://github.com/CoderMJLee/MJRefresh): their offsets become incorrect. I did not investigate the solution in depth before publishing this article. Perhaps Jike adopted the workaround mentioned above for the same reason.
+
+
+
+The open source libraries for the two solutions above are: **Solution 1: [Aquaman](https://github.com/bawn/Aquaman)** and **Solution 2: [Shazam](https://github.com/bawn/Shazam)**. MenuView is designed to be implemented by developers themselves, because even a MenuView with various built-in styles still cannot meet the endless variety of design requirements. With my demo, you can quickly build the exact effect you want.
