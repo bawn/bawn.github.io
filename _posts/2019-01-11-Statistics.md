@@ -258,9 +258,3 @@ static func track(key: SensorsAnalyticsKey, page: UIViewController? = nil) {
             track(key.rawValue, value)
 }
 ```
-
-可以看到对于浏览事件的实现其实并不复杂，整个过程只是走了一点弯路。
-
-
-
-## 未完待续
