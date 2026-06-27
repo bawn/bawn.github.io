@@ -43,7 +43,9 @@ Back to the previous problem: how do we solve it?
 * Method 3: use constraint values as a percentage of the screen height. This works for both handwritten code and xib/storyboard.
 
 Let's focus on method 3. It is easy to do this in handwritten code. But in xib/storyboard, you cannot set a constraint value as a ratio of another view's height. The solution is shown below:
+
 ![image](/assets/images/Adaptation/gesture_20.png)
+
 For example, if the designer used the iPhone 5/5s as the design reference and the top label needs a top constraint of 20, then in xib/storyboard you can add a transparent view above the label and set its height to 20. What you need to do is:
 
 1. Center the label horizontally and set its top constraint relative to the view to 0.
