@@ -1,127 +1,125 @@
 ---
 layout: post
-title: "Jekyll博客搭建"
+title: "Setting Up a Jekyll Blog"
 date: 2015-01-23
 comments: true
 categories: iOS
 tags: [Jekyll]
-keywords: Jekyll blog 迁移到gitcafe
-description: Jekyll博客搭建, 迁移到gitcafe
+keywords: Jekyll blog migrated to GitCafe
+description: Setting up a Jekyll blog, migrating to GitCafe
 ---
 
-### 注意：
+### Note:
 
+Since the blog has changed both hosting platform and theme, the comments on earlier posts were lost. I would like to apologize to everyone who left comments back then.
 
-由于博客已经换了搭建平台和主题，之前文章的评论已丢失，在这里对那些做过评论的网友说声抱歉。
+The reason I switched the blog platform to [Jekyll](http://jekyllcn.com/) is mainly because I liked this theme, and because Jekyll is very easy to set up and use. Below I will explain how to build your own personal blog with Jekyll in a Mac OS X environment.
 
-把博客平台换成[Jekyll](http://jekyllcn.com/)，主要原因是这款令我满意的主题，而且Jekyll搭建和操作也非常简单。下面介绍在Mac OS X环境下如何通过Jekyll搭建自己的个人博客。
+#### Environment Setup
 
-#### 搭建环境
+First, install the required tools:
 
-首先安装必要工具
+* [Ruby](https://www.ruby-lang.org/en/downloads/): included by default on Mac OS X 10.5 and later
+* [RubyGems](https://rubygems.org/pages/download): included by default on Mac OS X 10.5 and later
+* [NodeJS](http://nodejs.org/): run `node -v` in the terminal to check whether it is installed; download it from http://nodejs.org/
+* Xcode Command-Line Tools: installed automatically when Xcode is installed. Check whether `Preferences → Downloads → Components` offers Command-Line Tools for download. If not, it means they are already installed
+* [git](http://sourceforge.net/projects/git-osx-installer/): run `git --version` in the terminal to check whether it is installed; download it from http://sourceforge.net/projects/git-osx-installer/
 
-* [Ruby](https://www.ruby-lang.org/en/downloads/)：Mac OS X 10.5以上都自带
-* [RubyGems](https://rubygems.org/pages/download)：Mac OS X 10.5以上都自带
-* [NodeJS](http://nodejs.org/)：命令行输入`node -v`检查是否已安装，下载地址：http://nodejs.org/
-* Xcode Command-Line Tools： 安装Xcode会自动安装，检查`Preferences → Downloads → Components`是否有Command-Line Tools这项提供下载，如果没有说明已安装
-* [git](http://sourceforge.net/projects/git-osx-installer/)：命令行输入`git --version`检查是否已安装，下载地址：http://sourceforge.net/projects/git-osx-installer/
-
-由于国内网络问题，必须要替换下gem镜像源，除非你有其他安全上网的方法
+Due to networking issues in mainland China, you need to replace the gem source mirror unless you have another safe way to access the internet.
 
 ``` objectivec
-// 移除官方镜像源
-gem sources --remove https://rubygems.org/
-// 添加淘宝镜像源，或者其他镜像地址
-gem sources -a http://ruby.taobao.org/
+// remove the official mirror
+ gem sources --remove https://rubygems.org/
+// add the Taobao mirror, or another mirror address
+ gem sources -a http://ruby.taobao.org/
 
 ```
 
-验证是否替换成功`gem sources -l`
+Verify whether the replacement succeeded with `gem sources -l`:
 
 ``` ruby
 *** CURRENT SOURCES ***
 http://ruby.taobao.org/
 ```
 
-然后先更新下 `gem`
+Then update `gem` first:
 
 ``` ruby
 sudo gem update --system
-// MAC 系统版本如果是 El Capitan 使用下面这个命令
+// If you are using El Capitan on macOS, use this command instead
 sudo gem update -n /usr/local/bin --system
 ```
 
-安装Jekyll
+Install Jekyll:
 
 ``` objectivec
 sudo gem install jekyll
-// MAC 系统版本如果是 El Capitan 使用下面这个命令
+// If you are using El Capitan on macOS, use this command instead
 sudo gem install -n /usr/local/bin jekyll
 ```
 
-如果你在后续预览 `jekyll server` 博客的发生
+If you later encounter the following issue while previewing the blog with `jekyll server`:
 
 ``` objectivec
 Deprecation: Collection#map should be called on the #docs array directly.
                     Called by /Users//Documents/blog/_plugins/rssgenerator.rb:46:in `block in generate'.
 ```
 
-类似的错误，请安装低于 3.0版本的 jeykll
+or a similar error, install a Jekyll version earlier than 3.0:
 
 ``` objectivec
 sudo gem install jekyll -v '<3.0.0'
-// MAC 系统版本如果是 El Capitan 使用下面这个命令
+// If you are using El Capitan on macOS, use this command instead
 sudo gem install -n /usr/local/bin jekyll -v '<3.0.0'
 ```
 
-#### 安装主题
+#### Installing the Theme
 
-1. Fork我使用的这款主题[kasper](https://github.com/rosario/kasper)（这个是我用的旧主题）
+1. Fork the theme I use, [kasper](https://github.com/rosario/kasper) (this is my old theme).
 
-2. 把fork后的项目名改为：`xxxxxx.github.io`xxxx为你的github用户名，比如我的用户名是bawn，那么就需要修改成`bawn.github.io`，这个也正是你博客的地址。
+2. Rename the forked repository to `xxxxxx.github.io`, where `xxxx` is your GitHub username. For example, if your username is bawn, then you should rename it to `bawn.github.io`, which is also the address of your blog.
 
-   点击项目右侧 settings 菜单，进入后修改 `Repository name`就是了。
+   Click the `settings` menu on the right side of the repository, then change the `Repository name` there.
 
-完成这两步之后，在你的浏览器上输入xxxxxx.github.io或者xxxxxx.github.com，就会出现你个人博客的页面(可能需要等待几分钟)，这时候你的博客上	应该有一篇主题作者的默认文章叫做Welcome to Jekyll!
+After these two steps, enter `xxxxxx.github.io` or `xxxxxx.github.com` in your browser, and your personal blog page should appear (you may need to wait a few minutes). At this point, your blog should already contain the default post from the theme author called Welcome to Jekyll!
 
 
-
-#### 发表文章
+#### Publishing Posts
 
 ``` objectivec
-// 进入主题需要放置的目录
+// directory where the theme should be placed
 cd Documents
-// 克隆刚才fork的主题
+// clone the theme you just forked
 git clone https://github.com/xxxx/xxxxx.github.io
 ```
 
-完成之后你的Documents目录下应该有个xxxxx.github.io的文件夹（称之为博客目录），`_posts`文件夹中的markdown文件就是所发表的文章的源文件。
+After this, there should be a `xxxxx.github.io` folder under your Documents directory (this is the blog directory). The markdown files inside the `_posts` folder are the source files for published posts.
 
-新建一篇文章的命名规则是`xxxx-xxx-xx-xxxxxxx.md`，比如我这篇文章的命名是`2015-01-23-bolgSetUp`，里面内容也需要一定的规则，下面是这篇文章的头部的写法
+The naming rule for a new post is `xxxx-xxx-xx-xxxxxxx.md`. For example, the file name of this post is `2015-01-23-bolgSetUp`. The content also needs to follow certain rules. Below is the header format for this post:
 
 ``` objectivec
 
 ---
 layout: post
-title: "Jekyll博客搭建"
+title: "Jekyll Blog Setup"
 date: 2015-01-23
 comments: true
 categories: iOS
 tags: [Jekyll]
 keywords: Jekyll blog
-description: Jekyll博客搭建
+description: Jekyll blog setup
 ---
 
-由于博客已经换了搭建平台和主题，之前文章的评论已丢失，在这里对那些做过评论的网友说声抱歉。
+Because the blog has changed both hosting platform and theme, the comments on earlier posts were lost. I would like to apologize to everyone who left comments back then.
 ```
 
-Jekyll 官方文档比较坑，推荐的是用[Liquid](http://liquidmarkup.org/)方式的markdown解析语法来写代码块，比如是这样的：![image](/assets/images/Jekyll/code.png)
+The official Jekyll documentation is a bit frustrating. It recommends writing code blocks using [Liquid](http://liquidmarkup.org/)-style markdown syntax, like this: ![image](/assets/images/Jekyll/code.png)
 
-<s>其实Jekyll还支持[redcarpet]( https://github.com/vmg/redcarpet)解析器，所以使用 markdown [GFM](https://help.github.com/articles/github-flavored-markdown/) fenced code 代码块写法也可以:</s>
+<s>In fact, Jekyll also supports the [redcarpet]( https://github.com/vmg/redcarpet) parser, so markdown [GFM](https://help.github.com/articles/github-flavored-markdown/) fenced code blocks also work:</s>
 
-github在5月1号后将不再支持[redcarpet]( https://github.com/vmg/redcarpet)解析器，建议使用[kramdown](http://kramdown.gettalong.org/quickref.html)，解决[办法](https://help.github.com/articles/updating-your-markdown-processor-to-kramdown)，按照教程在`_config.yml`文件中添加 `markdown: kramdown`即可（此主题的作者已修复这个问题）
+GitHub stopped supporting the [redcarpet]( https://github.com/vmg/redcarpet) parser after May 1, so it is recommended to use [kramdown](http://kramdown.gettalong.org/quickref.html). For a [solution](https://help.github.com/articles/updating-your-markdown-processor-to-kramdown), add `markdown: kramdown` to the `_config.yml` file according to the tutorial. The author of this theme has already fixed this issue.
 
-所以使用 kramdown 代码块这样写就行
+So a kramdown code block can be written like this:
 
 ```
 ​```
@@ -131,19 +129,19 @@ CABasicAnimation *position = [CABasicAnimation animationWithKeyPath:@"position"]
 
 
 
-#### 本地预览
+#### Local Preview
 
-命令行进入博客目录，执行：
+In the terminal, go to the blog directory and run:
 
 ``` objectivec
-jekyll server // 简写 jekyll s
+jekyll server // short for jekyll s
 ```
 
-在浏览器地址栏中输入：http://localhost:4000/ 就可以进行本地预览。新增、修改、删除文章都可以实时的看到，只需要刷新页面，可以试着修改默认那篇文章看看效果。
+Then enter http://localhost:4000/ in your browser to preview locally. Additions, edits, and deletions to posts can all be seen in real time. Just refresh the page. You can try editing the default post to see the effect.
 
-#### 发布文章
+#### Publishing Posts
 
-发布文章和提交git项目修改一样，基本流程大概是这样的，博客目录下执行
+Publishing a post is basically the same as committing changes to a git project. The rough workflow in the blog directory is:
 
 ``` objectivec
 git add .
@@ -151,29 +149,28 @@ git commit -m 'xxxxx'
 git push origin master
 ```
 
-完成之后应该就能看到新的文章已经在你的个人博客主页上了。
-
+After that, you should be able to see the new post on your personal blog homepage.
 
 
 ---
 
-### 注意：
-__以下内容适用于 https://github.com/rosario/kasper 主题的博客搭建__
+### Note:
+__The following content applies to blogs built with the https://github.com/rosario/kasper theme.__
 
 
-#### 替换谷歌字体库
+#### Replacing Google Fonts
 
 <s>
-网站打开慢？刚搭完博客我也在郁闷这个事，然后通过[google的网站速度分析](https://developers.google.com/speed/pagespeed/insights/)发现是JS加载google的字体库造成找到`/_layouts/default.html`，把下面代码中的Google免费字体库的域名`googleapis`替换成[360](http://libs.useso.com)提供的代理`useso`的
+Is the site slow to open? I was also bothered by this right after building the blog, and after using [Google's PageSpeed Insights](https://developers.google.com/speed/pagespeed/insights/) I found that the slow loading was caused by JavaScript loading Google Fonts. Find `/_layouts/default.html` and replace the Google Fonts domain `googleapis` in the code below with the proxy `useso` provided by [360](http://libs.useso.com).
 </s>
 
-目前谷歌字体库已经可以正常使用，360貌似已经关闭了其字体库，所以不需要做任何的更改。
+Google Fonts are currently working normally, and it seems that 360 has already shut down its font proxy, so no changes are needed.
 
-#### 配置博客的相关信息
+#### Configuring Blog Information
 
 
 
-在`_config.yml`文件中修改，比如我的配置如下
+Modify the `_config.yml` file, for example like this:
 
 ``` objectivec
 name: Bawn
@@ -196,23 +193,22 @@ url:            '/rss.xml'
 author:         'Bawn'
 ```
 
-#### 添加多说评论
+#### Adding Duoshuo Comments
 
-将 `_layouts/post.html` 中的 `<footer class="post-footer">` 到 `</footer>`之间的内容替换为多说的评论代码，比如我替换后是这样的:
+Replace the content between `<footer class="post-footer">` and `</footer>` in `_layouts/post.html` with the Duoshuo comment code. After replacement, it looks like this:
 
 ![image](/assets/images/Jekyll/duoshuo.png)
 
-不过多说代码中的`data-thread-key` 目前不知道怎么赋值。
+However, I still do not know how to assign a value to `data-thread-key` in the Duoshuo code.
 
 
+#### Custom Code Highlighting
 
-#### 自定义代码高亮
+If you are not satisfied with the theme's code highlighting, you can easily customize it. For example, to configure the highlighting style I am currently using:
 
-如果不满意这个主题的代码高亮，也可以轻松定制，比如配置我现在用的高亮样式
-
-1. 在[Bootstrap中文网](http://www.bootcss.com/) 提供的 [CDN](http://www.bootcdn.cn/highlight.js/) 链接找到你喜欢的样式链接，比如我用的是样式是`hopscotch`对应的是![image](/assets/images/Jekyll/js.png)相应的样式效果可以到[highlightjs网站](https://highlightjs.org/static/demo/)查看，然后点击`复制<link>标签`
-2. 找到`_layouts/default.html`并编辑，找到`<!-- Customisation  -->`代码，直接在下面粘贴刚才复制的代码，然后head里面看上去会是这样![image](/assets/images/Jekyll/demo1.jpg)
-3. 还是在`_layouts/default.html`，找到`<script type="text/javascript" src="/assets/js/index.js"></script>`在下方添加以下代码
+1. On the [BootCSS](http://www.bootcss.com/) [CDN](http://www.bootcdn.cn/highlight.js/) page, find the style you like. For example, I use `hopscotch`, whose corresponding effect is shown here: ![image](/assets/images/Jekyll/js.png). You can view the style preview on the [highlight.js demo site](https://highlightjs.org/static/demo/), then click `copy <link>` tag.
+2. Find `_layouts/default.html` and edit it. Locate the `<!-- Customisation  -->` code, then paste the code you just copied below it. The head section should then look like this: ![image](/assets/images/Jekyll/demo1.jpg)
+3. Still in `_layouts/default.html`, find `<script type="text/javascript" src="/assets/js/index.js"></script>` and add the following code below it:
 
 ``` objectivec
 	<script type="text/javascript" src="http://cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script>
@@ -228,11 +224,11 @@ author:         'Bawn'
 
 
 
-#### 最后
+#### Finally
 
-如果直接fork我的项目进行修改，那么自定的这些样式也会被保留，不用折腾替换谷歌字体库、自定义代码高亮之类的事情，但是必须注意以下几点
+If you directly fork my project and make changes, these custom styles will also be preserved, so you do not need to mess around with replacing Google Fonts or custom code highlighting. However, you must pay attention to the following:
 
-1. 在 `_layouts/default.html`底部有我的百度统计代码，请自行配置你自己的代码![image](/assets/images/Jekyll/baidu.png)
-2. 在 `_layouts/post.html`底部有我的disqus插件代码，请自行配置你自己的代码或者使用多说评论![image](/assets/images/Jekyll/disqus.jpg)
-3. 删除`_posts`文件下的所有文件
-4. 修改`about.html`
+1. There is my Baidu Analytics code at the bottom of `_layouts/default.html`. Please configure your own code.
+2. There is my Disqus plugin code at the bottom of `_layouts/post.html`. Please configure your own code or use Duoshuo comments.
+3. Delete all files under `_posts`.
+4. Modify `about.html`.

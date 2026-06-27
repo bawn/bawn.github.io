@@ -1,48 +1,48 @@
 ---
 layout: post
-title: "带有简单动画的PageControl"
+title: "A PageControl with Simple Animations"
 date: 2015-06-16
 comments: true
 categories: iOS UIPageControl
 tags: [iOS]
 keywords: UIPageControl iOS
 publish: true
-description: 带有动画的UIPageControl
+description: An animated UIPageControl
 ---
 
-开源一个带有简单动画的PageControl控件，支持Autolayout，地址[GitHub](https://github.com/bawn/LCAnimatedPageControl)。
+An open source PageControl with simple animations, supporting Auto Layout. The project is available on [GitHub](https://github.com/bawn/LCAnimatedPageControl).
 
-目前有三种样式可选，包括：
+There are currently four styles to choose from:
 
- * LCSquirmPageStyle
+* LCSquirmPageStyle
  ![image1](/assets/images/LCAnimatedPageControl/LCAnimatedPageControl1.gif)
- * LCScaleColorPageStyle
+* LCScaleColorPageStyle
  ![image2](/assets/images/LCAnimatedPageControl/LCAnimatedPageControl2.gif)
- * LCDepthColorPageStyle
+* LCDepthColorPageStyle
  ![image3](/assets/images/LCAnimatedPageControl/LCAnimatedPageControl3.gif)
- * LCFillColorPageStyle
+* LCFillColorPageStyle
  ![image4](/assets/images/LCAnimatedPageControl/LCAnimatedPageControl4.gif)
 
 
-### 例子
+### Example
 ```
 
-self.pageControl.numberOfPages = 5;指示器的数量
-self.pageControl.indicatorMargin = 5.0f;// 指示器之间的间隔，默认是0
-self.pageControl.indicatorMultiple = 1.6f;// 指示器的放大倍数，默认是2
-self.pageControl.indicatorDiameter = 10.0f;// 指示器的直径
-pageControl.pageIndicatorColor = [UIColor grayColor];// 普通状态下的颜色
-pageControl.currentPageIndicatorColor = [UIColor redColor];// 当前状态下的颜色
-self.pageControl.pageStyle = LCScaleColorPageStyle;// 样式
-self.pageControl.sourceScrollView = _collectionView;// 绑定 ScrollView
-[self.pageControl prepareShow];// 全部属性设置完后再调用
+self.pageControl.numberOfPages = 5; // number of indicators
+self.pageControl.indicatorMargin = 5.0f; // spacing between indicators, default is 0
+self.pageControl.indicatorMultiple = 1.6f; // indicator scale factor, default is 2
+self.pageControl.indicatorDiameter = 10.0f; // indicator diameter
+pageControl.pageIndicatorColor = [UIColor grayColor]; // color in normal state
+pageControl.currentPageIndicatorColor = [UIColor redColor]; // color in current state
+self.pageControl.pageStyle = LCScaleColorPageStyle; // style
+self.pageControl.sourceScrollView = _collectionView; // bind the scroll view
+[self.pageControl prepareShow]; // call this after all properties are set
 [self.view addSubview:_pageControl];
 ```
 
-注意，`indicatorMargin`调整的间距是两个指示器都在放大状态下的距离，图示：
+Note that the spacing adjusted by `indicatorMargin` is the distance between two indicators when both are in the enlarged state. Diagram:
 ![2](/assets/images/LCAnimatedPageControl/LCAnimatedPageControl5.png)
 
-在 ScaleColorPageStyle 样式下，如果 scrollView 不是滚动到相邻位置的，必须实现以下协议方法，调用`clearIndicators`
+In the `ScaleColorPageStyle` style, if the scroll view does not scroll to an adjacent position, you must implement the following protocol method and call `clearIndicators`:
 
 ```
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView;{
@@ -50,7 +50,7 @@ self.pageControl.sourceScrollView = _collectionView;// 绑定 ScrollView
 }
 ```
 
-另外和和原生的`UIPageControl`一样，监听当前显示指示器的位置变化，使用的是`target - action`的形式：
+Also, just like the native `UIPageControl`, listening for changes in the currently displayed indicator uses the `target-action` pattern:
 
 ```
 [pageControl addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
