@@ -6,7 +6,7 @@ comments: true
 categories: iOS
 tags: [iOS]
 keywords: UI automation testing iOS
-publish: false
+publish: true
 description: iOS UI automation testing
 ---
 

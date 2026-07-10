@@ -7,12 +7,12 @@ categories: iOS
 tags: [iOS]
 published: ture
 keywords: MagicalRecord
-description: MagicalRecord配合Mantle
+description: Using MagicalRecord with Mantle
 ---
 
 ![image](/assets/images/MagicalRecord/bang.png)
 
-在开始之前，我们先创建一个名为MemberManaged的实体
+Before we begin, let's create an entity named MemberManaged.
 
 ![image](/assets/images/MagicalRecord/entity.png)
 
@@ -28,11 +28,11 @@ description: MagicalRecord配合Mantle
 @property (nonatomic, retain) NSNumber * isVip;
 @property (nonatomic, retain) NSString * url;
 ```
-后续的例子都是以此实体进行数据库的操作
+All of the examples below operate on this entity in the database.
 
-## 快速入门
+## Quick Start
 
-### 配置
+### Setup
 
 ```
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -47,37 +47,37 @@ description: MagicalRecord配合Mantle
 }
 ```
 
-### 查找数据
+### Fetching Data
 
 ```
-//返回MemberManaged表中的第一条数据
+// Return the first record in the MemberManaged table
 MemberManaged *memberManaged = [MemberManaged MR_findFirst];
 ```
 
 ```
-//返回MemberManaged表中的所有数据
+// Return all records in the MemberManaged table
 NSArray *array = [[MemberManaged MR_findAll];
 ```
 
 ```
-//键值条件查找，返回符合条件的所有数据
+// Find by key-value condition and return all matching records
 NSArray *array = [MemberManaged MR_findByAttribute:@"memberID" withValue:@"1"];
 ```
 
 ```
-//按指定字段排序
+// Sort by the specified field
 NSArray *array = [MemberManaged MR_findAllSortedBy:@"age" ascending:YES];
 ```
 
 ```
-//自定义NSPredicate查找，返回符合条件的所有数据
+// Use a custom NSPredicate to fetch all matching records
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"age > 18"];
 MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 ```
 
-对于NSPredicate不熟悉的同学可以看我之前写的介绍NSPredicate的[博文](http://bawn.github.io/2014/05/07/NSPredicate/)，关于其他的查找方法我就不一一介绍了。
+If you are not familiar with NSPredicate, you can read my earlier [post](http://bawn.github.io/2014/05/07/NSPredicate/) introducing it. I will not go through the other fetch methods one by one here.
 
-### 插入数据
+### Inserting Data
 ```
     [MagicalRecord saveWithBlock:^(NSManagedObjectContext *localContext) {
         MemberManaged *memberManaged = [MemberManaged MR_createInContext:localContext];
@@ -94,10 +94,10 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
     }];
 ```
 
-### 删除数据
+### Deleting Data
 
 ```
-	//删除单条数据
+	// Delete a single record
    [MagicalRecord saveWithBlock:^(NSManagedObjectContext *localContext) {
         MemberManaged *member = [MemberManaged MR_findFirstInContext:localContext];
         [member MR_deleteEntity];
@@ -107,7 +107,7 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 ```
 
 ```
-	//删除表
+	// Delete all records in the table
     [MagicalRecord saveWithBlock:^(NSManagedObjectContext *localContext) {
         [MemberManaged MR_truncateAllInContext:localContext];
     } completion:^(BOOL success, NSError *error) {
@@ -115,7 +115,7 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
     }];
 ```
 
-### 更新数据
+### Updating Data
 ```
     MemberManaged *member = [MemberManaged MR_findFirst];
     [MagicalRecord saveWithBlock:^(NSManagedObjectContext *localContext) {
@@ -128,30 +128,30 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 
 
 
-## 配合Mantle
+## Working with Mantle
 
-### 基本转换
+### Basic Transformation
 
-上一篇 [博文](http://bawn.github.io/2014/12/11/Mantle/) 中提到Mantle的 [MTLManagedObjectAdapter](https://github.com/Mantle/MTLManagedObjectAdapter) 类，2.0版本开发者已把此类作为一个单独 repo 从 Mantle 剥离出来，这个类有个名叫`MTLManagedObjectSerializing`的协议，此协议有两个必须实现的方法:
+In my previous [post](http://bawn.github.io/2014/12/11/Mantle/), I mentioned Mantle's [MTLManagedObjectAdapter](https://github.com/Mantle/MTLManagedObjectAdapter) class. In version 2.0, the developers split it out from Mantle into a separate repository. This class uses a protocol called `MTLManagedObjectSerializing`, which has two required methods:
 
 ```
-//返回此类对应的实体类名
+// Return the entity class name corresponding to this class
 + (NSString *)managedObjectEntityName;
 ```
 
 ```
-//返回此类和实体属性的映射关系
+// Return the mapping between this class and the entity's properties
 + (NSDictionary *)managedObjectKeysByPropertyKey;
 ```
 
-另外由于Member类和MemberManaged类的url字段的类型不一致，需要实现另一个协议方法，实现`NSUrl`-->`NSString`（age和isVip字段不需要转换，不要问我为什么）
+In addition, because the `url` property has different types in the `Member` and `MemberManaged` classes, another protocol method is needed to convert `NSURL` to `NSString` (the `age` and `isVip` fields do not need conversion; don't ask me why).
 
 ```
-//属性值转换
+// Transform property values
 + (NSValueTransformer *)entityAttributeTransformerForKey:(NSString *)key;
 ```
 
-先看具体实现
+Let's look at the implementation.
 
 >Member.h
 
@@ -169,14 +169,14 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 >Member.m
 
 ```
-//表示Member类对应的实体类是MemberManaged
+// Indicates that the entity class corresponding to Member is MemberManaged
 + (NSString *)managedObjectEntityName{
     return @"MemberManaged";
 }
 ```
 
 ```
-//表示Member类向MemberManaged类转换的字段映射，也是需要写全的
+// Indicates the field mapping when converting Member to MemberManaged; this must also be fully specified
 + (NSDictionary *)managedObjectKeysByPropertyKey{
     return @{
              @"memberID" : @"memberID",
@@ -190,7 +190,7 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 }
 ```
 
-具体运用：
+Usage:
 
 ```
     NSDictionary *dic = @{
@@ -212,16 +212,16 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 ```
 
 
-1. `Member *member = [MTLJSONAdapter modelOfClass:[Member class] fromJSONDictionary:dic error:nil];` 完成从NSDictionary-->Member转换，并返回Member实例
-2. `[MTLManagedObjectAdapter managedObjectFromModel:member insertingIntoContext:localContext error:nil];` 完成Member-->MemberManaged转换，返回MemberManaged实例，但是我们并不需要。
-3. 配合MagicalRecord储存方法`+ (void) saveWithBlock:(void(^)(NSManagedObjectContext *localContext))block;`
+1. `Member *member = [MTLJSONAdapter modelOfClass:[Member class] fromJSONDictionary:dic error:nil];` completes the transformation from NSDictionary to Member and returns a Member instance.
+2. `[MTLManagedObjectAdapter managedObjectFromModel:member insertingIntoContext:localContext error:nil];` completes the Member -> MemberManaged conversion and returns a MemberManaged instance, but we do not need it.
+3. Use MagicalRecord's save method `+ (void) saveWithBlock:(void(^)(NSManagedObjectContext *localContext))block;`
 
-**注意：对于MemberManaged类，我们并不需要对它做任何的处理。**
+**Note: for the MemberManaged class, we do not need to do anything to it.**
 
 
-### 唯一性检查
+### Uniqueness Check
 
-同样是实现`<MTLManagedObjectSerializing>`中的一个方法：
+This is also implemented through a method in `<MTLManagedObjectSerializing>`:
 
 ```
 + (NSSet *)propertyKeysForManagedObjectUniquing{
@@ -229,9 +229,9 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 }
 ```
 
-表示当插入新数据的时候，对比需要插入的这条数据的memberID字段的值是否和数据库中的有相同。如果有相同就覆盖更新这条数据，如果没有就新增。这样带来的方便之处显而易见。
+This means that when inserting new data, the `memberID` value of the record being inserted is compared with the values already in the database. If there is a match, the existing record is updated. If not, a new one is inserted. The convenience of this is obvious.
 
-更新数据
+Updating Data
 
 ```
 
@@ -255,10 +255,10 @@ MemberManaged *memberManaged = [MemberManaged MR_findAllWithPredicate:pre];
 }
 ```
 
-数据库中只有一条数据，因为插入的数据的memberID都是2。
+There is only one record in the database because the inserted records all have a `memberID` of 2.
 
-## 总结
+## Summary
 
-MagicalRecord配合Mantle使用至少让代码看起来简洁了不少，再也不用为Core Data复杂的API而烦恼，也不用再写if/else来做字段的转换。
+Using MagicalRecord together with Mantle makes the code look much cleaner. There is no longer any need to struggle with Core Data's complicated APIs, and there is no need to write `if/else` logic for field conversion.
 
-Demo地址：[MagicalRecord-Mantle](https://github.com/bawn/MagicalRecord-Mantle)
+Demo: [MagicalRecord-Mantle](https://github.com/bawn/MagicalRecord-Mantle)

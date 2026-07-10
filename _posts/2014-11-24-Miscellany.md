@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "杂记"
+title: "Miscellaneous Notes"
 date: 2014-11-24
 update: 2015-04-7
 comments: true
@@ -8,43 +8,43 @@ categories: iOS
 tags: [iOS]
 published: ture
 keywords: iOS
-description: iOS杂记
+description: Miscellaneous iOS notes
 ---
 
-很久没更新博客了，因为项目优点忙。
+It has been a long time since I last updated the blog, because the project has been a bit busy.
 
-回归正题，将近一年的开发过程中，我都会把学习到的一些东西记录下来，工具用的是[印象笔记](https://www.yinxiang.com/)，这确实是个不错的学习方法。不过印象笔记并不支持markdown，网上也有很多方法让笔记以markdown语法的格式保存到印象笔记中。目前我用的是[马克飞象](http://marxi.co/)这款工具，比较方便，专业版是收费的。
+Back to the point: over nearly a year of development work, I have been recording things I learned using [Evernote](https://www.yinxiang.com/). This is indeed a good learning habit. However, Evernote does not support Markdown, and there are many ways online to save notes into Evernote in Markdown format. At the moment, I use [MaKeFeiXiang](http://marxi.co/), which is quite convenient, but the professional version is paid.
 
-下面是我两年来一些无分类的琐碎笔记，或许有些对大家有帮助
+Below are some uncategorized miscellaneous notes from the past two years. Some of them may be helpful.
 
-### 将数组切割成字符串
+### Joining an Array into a String
 
 ```
-NSArray *array=[[NSArray alloc]initWithObjects:@"苹果",@"香蕉",@"草莓", @"菠萝", nil];
+NSArray *array=[[NSArray alloc]initWithObjects:@"apple",@"banana",@"strawberry", @"pineapple", nil];
 NSString *newString=[array componentsJoinedByString:@","];    
 NSLog(@"%@", newString);
 ```
 
 
 ```
-2013-10-29 15:38:23.372 Nurse[4001:c07] 苹果,香蕉,草莓,菠萝
+2013-10-29 15:38:23.372 Nurse[4001:c07] apple,banana,strawberry,pineapple
 ```
 
 ___
 
-### 将字符串切割成数组
+### Splitting a String into an Array
 
 ```
 - (void)viewDidLoad
   {
-    NSString *a = [[NSString alloc] initWithString : @"冬瓜，西瓜，火龙果，大头，小狗" ];
+    NSString *a = [[NSString alloc] initWithString : @"winter melon, watermelon, dragon fruit, big head, puppy" ];
     NSArray *b = [a componentsSeparatedByString:@"，"];
   }
 ```
 ___
 
 
-### 获得UIColor获得RGB值
+### Getting RGB Values from UIColor
 
 ```
 CGFloat R, G, B;
@@ -56,23 +56,23 @@ B = components[2];
 
 ___
 
-### 抗锯齿
+### Anti-Aliasing
 
-有些时候图片旋转后会存在一些比较严重的锯齿效果
+Sometimes, after an image is rotated, it may show obvious aliasing.
 
-解决办法：在项目plist文件中添加名为`UIViewEdgeAntialiasing的key`并设置为`YES`，但是这样可能会对性能产生严重的影响。
+Solution: add a key named `UIViewEdgeAntialiasing` to the project's plist file and set it to `YES`, but this may have a serious impact on performance.
 
-Apple的解释：
+Apple's explanation:
 
 > Use antialiasing when drawing a layer that is not aligned to pixel boundaries. This option allows for more sophisticated rendering in the simulator but can have a noticeable impact on performance.
 
-简单办法：原始图片的四周做一个1像素的透明
+Simple solution: add a 1-pixel transparent border around the original image.
 
 ___
 
-### 屏幕截图
+### Screen Capture
 
-iOS 7之后
+After iOS 7:
 
 ```
 
@@ -85,9 +85,9 @@ UIGraphicsEndImageContext();
 
 ____
 
-### 隐藏键盘(点击屏幕任意位置)
+### Hiding the Keyboard by Tapping Anywhere on the Screen
 
-在VC中重写
+Override this in the view controller:
 
 
 ```
@@ -95,7 +95,7 @@ ____
 
 ```
 
-方法
+Method
 
 ```
   -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -108,22 +108,22 @@ ____
 ```
 ___
 
-### 在包含UITableView视图中添加单击手势
+### Adding a Tap Gesture to a View Containing a UITableView
 
-如果在包含UITableView视图中添加单击手势，这个单击手势会屏蔽掉UITableView的
+If you add a tap gesture to a view containing a UITableView, that tap gesture will block the UITableView's
 
 
 ```
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 ```
 
-可以利用`UIGestureRecognizer`的`Delegate`中的
+You can use the `Delegate` method of `UIGestureRecognizer`:
 
 ```
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer;
 ```
 
-在单击点位于UITableView内的时候取消响应
+Cancel the gesture when the tap occurs inside the UITableView.
 
 
 ```
@@ -136,7 +136,7 @@ ___
   }
 ```
 
-简单点的就将单击手势的cancelsTouchesInView设置为NO即可
+The simpler solution is to set the tap gesture's `cancelsTouchesInView` to `NO`.
 
 ```
 singleTap.cancelsTouchesInView = NO;
@@ -144,9 +144,9 @@ singleTap.cancelsTouchesInView = NO;
 
 ___
 
-### URLWithString:返回nil
+### `URLWithString:` Returns `nil`
 
-解决办法
+Solution
 
 ```
 NSString *tempString = [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -155,17 +155,17 @@ NSURL *url = [NSURL URLWithString:tempString];
 
 ___
 
-### 判断string是否包含中文
+### Checking Whether a String Contains Chinese Characters
 
 ```
 NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:@"[\u4e00-\u9fa5]" options:0 error:nil];
-// 返回中文的个数numberOfMatches
+// Return the number of Chinese characters in numberOfMatches
 NSUInteger numberOfMatches = [regularExpression numberOfMatchesInString:string options:0 range:NSMakeRange(0, [string length])];
 ```
 
 ___
 
-### 度数转换为弧度
+### Converting Degrees to Radians
 
 `#import <GLKit/GLKit.h>`
 
@@ -175,19 +175,19 @@ float GLKMathDegreesToRadians(float degrees)
 ```
 ___
 
-### 快速定位cell
+### Quickly Locating a Cell
 
-通过在cell中的子视图，例子中是button
+Use a subview inside the cell, in this example a button.
 
 ```
 NSIndexPath *path = [_collectionView indexPathForItemAtPoint:[button convertPoint:CGPointZero toView:self.collectionView]];
 ```
 
-适用于UITableView(API不同)和UICollectionView
+Works for UITableView (with different APIs) and UICollectionView.
 
 ___
 
-### 判断一个view是否是另一个view的子视图
+### Checking Whether One View Is a Subview of Another
 
 ```
 - (BOOL)isDescendantOfView:(UIView *)view;
@@ -195,7 +195,7 @@ ___
 
 ___
 
-### 解决64位上%d和%u警告
+### Fixing `%d` and `%u` Warnings on 64-bit
 
 ```
 # if __LP64__
@@ -207,22 +207,22 @@ ___
 # endif
 ```
 
-使用
+Usage
 
 ```
 NSInteger row = 2;
-NSLog(@"i=%"NSI@"其他文字", row);
+NSLog(@"i=%"NSI@" other text", row);
 ```
 
 ___
 
-### ?语法
+### The `?:` Syntax
 
 ```
 NSLog(@"%@", @"a" ?: @"b"); // @"a"
 ```
 
-如果成立返回`?`语法的消息接收者，这里就是@"a"。常用:
+If the condition is true, it returns the message receiver on the left side of `?:`, which here is `@"a"`. Common usage:
 
 ```
 cell.titleLabel.text = self.name ?:nil;
@@ -230,7 +230,7 @@ cell.titleLabel.text = self.name ?:nil;
 
 ___
 
-### 跳转到系统设置界面(只适用用iOS 8)
+### Opening the System Settings Screen (iOS 8 Only)
 
 ```
 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
@@ -238,32 +238,32 @@ ___
 
 ___
 
-### 跳转到APP Store（iOS 7之后）
+### Opening the App Store (iOS 7 and Later)
 
-跳转到产品详情界面
+Open the product details page.
 
 ```
 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/app/idxxxxxx"]];
 ```
 
-跳转到产品评论界面
+Open the product review page.
 
 ```
 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=xxxxxx&pageNumber=0&sortOrdering=2&type=Purple+Software&mt=8"]];
 ```
 
-xxxxx是的Apple ID
+`xxxxx` is the Apple ID.
 
 ___
 
-### 消除UINavigationBar的底部的一像素线
+### Removing the One-Pixel Bottom Line of UINavigationBar
 
 ```
 [self.navigationController.navigationBar setBackgroundImage:[[UIImage alloc] init] forBarMetrics:UIBarMetricsDefault];
 self.navigationController.navigationBar.shadowImage = [[UIImage alloc] init];
 ```
 
-恢复
+Restore
 
 ```
 [self.navigationController.navigationBar setBackgroundImage:[[UIImage alloc] init] forBarMetrics:UIBarMetricsDefault];
@@ -272,9 +272,9 @@ self.navigationController.navigationBar.shadowImage = nil;
 
 ___
 
-### 判断滑动方法
+### Determining Gesture Direction
 
-* 纵向
+* Vertical
 
 ```
   CGPoint velocity = [sender velocityInView:self];
@@ -282,7 +282,7 @@ ___
   BOOL isVerticalGesture = fabsf(velocity.y) >= fabsf(velocity.x);
 ```
 
-* 横向
+* Horizontal
 
 ```
   CGPoint velocity = [self.panGestureRecognizer velocityInView:self.panGestureRecognizer.view];
@@ -291,7 +291,7 @@ ___
 
 ___
 
-### UIScrollView滚动到顶部
+### Scrolling a UIScrollView to the Top
 
 ```
 self.tableView.contentOffset = CGPointMake(0, 0 - self.tableView.contentInset.top);
@@ -299,9 +299,9 @@ self.tableView.contentOffset = CGPointMake(0, 0 - self.tableView.contentInset.to
 
 ___
 
-### APP中禁用第三方键盘
+### Disabling Third-Party Keyboards in the App
 
-在`AppDelegate`中添加
+Add this in `AppDelegate`:
 
 ```
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(NSString *)extensionPointIdentifier {
@@ -313,9 +313,9 @@ ___
 ```
 ___
 
-### 文件大小格式化
+### Formatting File Size
 
-不用很low的再用 /1024/1024转化成 MB 了试试下面这个吧
+No need to use the very low-level `/1024/1024` conversion to MB anymore. Try this instead:
 
 ```
 NSString *storage = [NSByteCountFormatter stringFromByteCount:size countStyle:NSByteCountFormatterCountStyleFile];
