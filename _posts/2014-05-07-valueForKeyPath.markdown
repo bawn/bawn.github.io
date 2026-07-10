@@ -6,18 +6,18 @@ comments: true
 categories: iOS
 tags: [iOS]
 keywords: iOS KVC valueForKeyPath
-description: valueForKeyPath方法的强大之处
+description: The power of the valueForKeyPath method
 ---
-或许大家在平常的开发中`- (id)valueForKeyPath:(NSString *)keyPath`方法用的不多
+Perhaps many people do not use `- (id)valueForKeyPath:(NSString *)keyPath` very often in day-to-day development.
 
-但是这个方法非常强大，举个例子:
+However, this method is very powerful. For example:
 
 ```objc
 NSArray *array = @[@"name", @"w", @"aa", @"jimsa"];
 NSLog(@"%@", [array valueForKeyPath:@"uppercaseString"]);
 ```
 
-输出
+Output
 
 ```
 (
@@ -28,17 +28,17 @@ NSLog(@"%@", [array valueForKeyPath:@"uppercaseString"]);
 )
 ```
 
-相当于数组中的每个成员执行了`uppercaseString`方法，然后把返回的对象组成一个新数组返回。既然可以用`uppercaseString`方法，那么NSString的其他方法也可以，比如
+This is equivalent to calling `uppercaseString` on each element in the array, then returning the results as a new array. Since `uppercaseString` works, other NSString methods work too, for example:
 
 ```
 [array valueForKeyPath:@"length"]
 ```
 
-返回每个字符串长度的组成的数组。只要你能想到的成员实例方法都可以这么用。
+This returns an array containing the length of each string. Any instance method you can think of can be used this way.
 
-如果你觉得这个方法就这么点功能，那就错了。还是举具体的例子
+If you think this method only does that much, you are wrong. Let's look at some concrete examples.
 
-###  对NSNumber数组快速计算数组求和、平均数、最大值、最小值
+### Quickly Calculating Sum, Average, Maximum, and Minimum for an NSArray of NSNumbers
 
 ```
 NSArray *array = @[@1, @2, @3, @4, @10];
@@ -48,7 +48,7 @@ NSNumber *max = [array valueForKeyPath:@"@max.self"];
 NSNumber *min = [array valueForKeyPath:@"@min.self"];
 ```
 
-或者指定输出类型
+Or specify the output type:
 
 ```
 NSNumber *sum = [array valueForKeyPath:@"@sum.floatValue"];
@@ -57,19 +57,19 @@ NSNumber *max = [array valueForKeyPath:@"@max.floatValue"];
 NSNumber *min = [array valueForKeyPath:@"@min.floatValue"];
 ```
 
-这里有一点需要注意，`@sum` 和 `@avg`的集合操作，会先把对象先转换为 double 值，
-最后输出包含 double 值的 NSNumber 对象，所以千万不要放这样的错误：
+One thing to note: the collection operators `@sum` and `@avg` first convert objects to `double` values,
+and then output an `NSNumber` containing a `double`, so do not make this mistake:
 
 ```
 NSArray *arr = @[@(0),@(10),@(40)];
 NSInteger avg = [[arr valueForKeyPath:@"@avg.self"] integerValue];
 NSLog(@"---%ld----",avg);
 ```
-integerValue 操作后直接返回 0 了
+After calling `integerValue`, the result becomes 0 directly.
 
 
 
-### 剔除重复数据
+### Removing Duplicate Data
 
 ```objc
 NSArray *array = @[@"name", @"w", @"aa", @"jimsa", @"aa"];
@@ -84,7 +84,7 @@ NSLog(@"%@", [array valueForKeyPath:@"@distinctUnionOfObjects.self"]);
 )
 ```
 
-###  快速取值
+### Quick Value Extraction
 
 ```objc
     NSArray *array = @[@{@"name" : @"cookeee",
@@ -94,7 +94,7 @@ NSLog(@"%@", [array valueForKeyPath:@"@distinctUnionOfObjects.self"]);
     NSLog(@"%@", [array valueForKeyPath:@"name"]);
 ```
 
-直接得到字典中`name`key对应的值组成的数组，显然比循环取值再加入到新数组中方便快捷
+This directly returns an array containing the values for the `name` key in each dictionary. Clearly, this is more convenient and faster than looping through the values and adding them to a new array.
 
 ```
 (
@@ -105,9 +105,9 @@ NSLog(@"%@", [array valueForKeyPath:@"@distinctUnionOfObjects.self"]);
 )
 ```
 
-###  嵌套使用
+### Nested Usage
 
-对`name`字段对应的值剔除重复数据再取值
+Remove duplicate values from the `name` field and then extract the values.
 
 ```objc
 
@@ -127,7 +127,7 @@ NSLog(@"%@", [array valueForKeyPath:@"@distinctUnionOfObjects.name"]);
 )
 ```
 
-对`number`字段对应的值取最大值
+Get the maximum value of the `number` field.
 
 ```
 NSArray *array = @[@{@"number" : @1, @"title" : @""},
@@ -139,17 +139,17 @@ NSArray *array = @[@{@"number" : @1, @"title" : @""},
 NSNumber *max = [array valueForKeyPath:@"@max.number"];
 ```
 
-###  改变UITextfiedl的placeholder的颜色
+### Changing the Placeholder Color of a UITextField
 
 ```
     [searchField setValue:[UIColor whiteColor] forKeyPath:@"_placeholderLabel.textColor"];
 ```
 
-比起重写`- (void)drawPlaceholderInRect:(CGRect)rect;`要方便很多
+This is much more convenient than overriding `- (void)drawPlaceholderInRect:(CGRect)rect;`.
 
 
 
-### 实用例子
+### Practical Example
 
 ```objc
 NSArray *array = @[
@@ -160,4 +160,4 @@ NSArray *array = @[
 NSNumber *count = [[array valueForKeyPath:@"@unionOfObjects.@count"] valueForKeyPath:@"@sum.self"];
 ```
 
-计算嵌套数组的总个数，比如这里返回的是 9
+Calculate the total number of elements in a nested array. For example, this returns 9.

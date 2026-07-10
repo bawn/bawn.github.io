@@ -5,12 +5,12 @@ date: 2014-05-07
 comments: true
 categories: iOS
 tags: [iOS]
-keywords: NSPredicate 筛选
-description: NSPredicate数据筛选
+keywords: NSPredicate filtering
+description: NSPredicate data filtering
 ---
-大家在平常的开发过程中多多少少都会接触到数据筛选，那势必会用到`NSPredicate`
+In day-to-day development, everyone will more or less encounter data filtering, and that inevitably involves `NSPredicate`.
 
-这个类和我上一篇博文中提到的[valueForKeyPath](http://bawn.github.io/2014/05/07/valueForKeyPath/)一样很强大。它的使用主要集中在两个方法中:
+This class is just as powerful as [valueForKeyPath](http://bawn.github.io/2014/05/07/valueForKeyPath/) mentioned in my previous post. Its use mainly centers around two methods:
 
 NSArray
 
@@ -24,14 +24,14 @@ NSMutableArray
 - (void)filterUsingPredicate:(NSPredicate *)predicate;
 ```
 
-还有`NSSet`和`NSMutableSet`也可以用这个类筛选。
-下面我就来一一介绍这个类的用法，相信大家看完后会和我一样认为这个类真的很强大。
+`NSSet` and `NSMutableSet` can also be filtered with this class.
+Below I will go through the usage of this class one by one. After reading this, I think you will agree with me that this class is really powerful.
 
->## 筛选用法
+>## Filtering Usage
 
-### 利用成员实例方法
+### Using Instance Methods on Elements
 
-* 筛选出长度大于3的字符串
+* Filter strings whose length is greater than 3
 
 ```objc
 NSArray *array = @[@"jim", @"cook", @"jobs", @"sdevm"];
@@ -39,7 +39,7 @@ NSPredicate *pre = [NSPredicate predicateWithFormat:@"length > 3"];
 NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 ```
 
-打印
+Output
 
 ```
 (
@@ -49,9 +49,9 @@ NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 )
 ```
 
-`lenght`就是对数组成员执行[xxxx lenght]然后判断返回的NSUInteger值是否大于3。
+`length` means calling `[xxxx length]` on each array element and then checking whether the returned `NSUInteger` value is greater than 3.
 
-* NSString其他方法比如`integerValue`
+* Other NSString methods such as `integerValue`
 
 
 ```objc
@@ -60,16 +60,16 @@ NSPredicate *pre = [NSPredicate predicateWithFormat:@"integerValue >= %@", @3];
 NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 ```
 
-如果不想用任何实例方法,想筛选成员本身应该怎么做。这时候就可以用`self`来代替
+If you do not want to use any instance methods and want to filter on the element itself, you can use `self` instead.
 
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"self CONTAINS %@", @"3"];
 ```
 
-`CONTAINS`用法后面会讲到
+The usage of `CONTAINS` will be discussed later.
 
 
-### 扩展到模型
+### Extending to Models
 
 ```objc
 @interface Test : NSObject
@@ -79,49 +79,49 @@ NSPredicate *pre = [NSPredicate predicateWithFormat:@"self CONTAINS %@", @"3"];
 ```
 ```objc
 Test *test1 = [[Test alloc]init];
-test1.name = @"西湖";
+test1.name = @"West Lake";
 test1.code = @1;
 
 Test *test2 = [[Test alloc]init];
-test2.name = @"西溪湿地";
+test2.name = @"Xixi Wetland";
 test2.code = @2;
 
 Test *test3 = [[Test alloc]init];
-test3.name = @"灵隐寺";
+test3.name = @"Lingyin Temple";
 test3.code = @3;
 
 NSArray *array = @[test1, test2, test3];
 ```
-筛选出数组成员`[test code]`方法(code属性的get方法)返回值 >= 2的成员。这里的比较运算符同样也可以使用`==`、`!=`、`<=`、`<`。
+Filter the array elements whose `[test code]` method (the getter for the `code` property) returns a value greater than or equal to 2. The comparison operators `==`, `!=`, `<=`, and `<` can also be used here.
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"code >= %@", @2];
 NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 ```
 
-其实`==`不仅可以用来比较NSNumber对象，还可以用来判断NSString对象是否相同。
+Actually, `==` can be used not only to compare `NSNumber` objects, but also to determine whether `NSString` objects are equal.
 ```objc
-NSPredicate *pre = [NSPredicate predicateWithFormat:@"name == %@", @"西湖"];
+NSPredicate *pre = [NSPredicate predicateWithFormat:@"name == %@", @"West Lake"];
 ```
-筛选出`name`是"西湖"的对象数组。
+This filters the object array whose `name` is "West Lake".
 
-#### NSString对象的操作
+#### Operations on NSString Objects
 
-前面提到`==`比较运算符可以起到`- (BOOL)isEqualToString:(NSString *)aString;`方法的效果，来判断字符串是否相同。那么字符串中包含某个字符串应该如何判断呢，在NSPredicate中可以用`CONTAINS`(大小写都可以)来表示包含关系。
+As mentioned above, the `==` comparison operator can achieve the same effect as `- (BOOL)isEqualToString:(NSString *)aString;` when determining whether strings are equal. So how do you check whether a string contains another string? In NSPredicate, you can use `CONTAINS` (case-insensitive in terms of keyword spelling) to represent containment.
 ```objc
- NSPredicate *pre = [NSPredicate predicateWithFormat:@"name CONTAINS %@", @"湖"];
+ NSPredicate *pre = [NSPredicate predicateWithFormat:@"name CONTAINS %@", @"Lake"];
 ```
-当判断的时候需要忽略大小写可以使用`[cd]`
->[c] 忽略大小写
-[d] 忽略重音符号
-[cd]既不区分大小写，也不区分发音符号。
+To ignore case when matching, you can use `[cd]`:
+>[c] Ignore case
+[d] Ignore diacritic marks
+[cd] Ignore both case and diacritics.
 
-使用：
+Usage:
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"name CONTAINS[cd] %@", @"abc"];
 ```
-再涉及到一些更复杂的查询语句，比如判断字符串以某个字符串开头或者结尾，通配符的使用。
+For more complex queries, such as checking whether a string begins or ends with another string, or using wildcards:
 
-**BEGINSWITH(已某个字符串开头, begins with)**
+**BEGINSWITH (begins with a certain string)**
 
 ```objc
 
@@ -131,15 +131,15 @@ NSPredicate *pre = [NSPredicate predicateWithFormat:@"name BEGINSWITH
 
 ```
 
-**ENDSWITH(已某个字符串结尾, ends with)**
+**ENDSWITH (ends with a certain string)**
 
 ```objc
 NSString *targetString = @"ing";
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"name ENDSWITH %@",targetString];
 ```
 
-**通配符 LIKE**
->`*` 代表一个或者多个或者是空，`?` 代表一个字符
+**Wildcard LIKE**
+>`*` represents one or more characters or an empty match, and `?` represents a single character.
 
 ```objc
 Test *test1 = [[Test alloc]init];
@@ -161,54 +161,54 @@ NSArray *array = @[test1, test2, test3];
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"name LIKE %@", @"?b*"];
 NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 ```
-筛选结果：只有test1符合。同时`like`也可以接受`[cd]`，比如：
+Result: only `test1` matches. `LIKE` can also accept `[cd]`, for example:
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"name LIKE[cd] %@", @"?b*"];
 ```
 
-#### 关系运算,包括了IN、BETWEEN、AND、OR、NOT
+#### Relational Operators, Including IN, BETWEEN, AND, OR, and NOT
 
-**IN(之中)**
+**IN**
 
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"code IN %@", @[@1, @3]];
 ```
 
-判断code是否@1或者是@2，也就是是否在数组中。
+Check whether `code` is @1 or @3, that is, whether it is in the array.
 
-**OR(或,可以用`||`代替)**
+**OR**
 
-`OR`可以用来代替`IN`达到同样的效果，但是`OR`更灵活。
+`OR` can be used instead of `IN` to achieve the same effect, but `OR` is more flexible.
 
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"code == %@ OR code == %@ ", @1, @3];
 ```
-效果和`IN`一样，但是`OR`可以判断不只一个属性
+The effect is the same as `IN`, but `OR` can test more than one property.
 
 ```objc
 NSPredicate *pred = [NSPredicate predicateWithFormat:@"code == %@ OR name == %@ ", @1, @"asb"];
 ```
 
-**BETWEEN(之间)**
+**BETWEEN**
 
-通常用于判断NSNumber对象
+Usually used when checking `NSNumber` objects.
 
 ```objc
 NSPredicate *pred = [NSPredicate predicateWithFormat:@"code BETWEEN {1, 3}"];
 ```
 
-判断code是否>=1且<=3
+Check whether `code` is >= 1 and <= 3.
 
 
-**AND(且,可以用&&代替)**
+**AND**
 
 ```objc
 NSPredicate *pred = [NSPredicate predicateWithFormat:@"code >= %@ AND code <=%@", @1, @3];
 ```
 
-**NOT(非,可以用!代替)**
+**NOT**
 
-`NOT`最常见的用法就是从一个数组中剔除另外一个数组的数据，可能有点绕，举个例子就很明朗了。
+The most common use of `NOT` is to remove the values of one array from another array. That may sound a bit confusing, but an example will make it clear.
 
 ```objc
 NSArray *arrayFilter = @[@"abc1", @"abc2"];
@@ -217,7 +217,7 @@ NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"NOT (SELF in %@)"
 NSLog(@"%@",[arrayContent filteredArrayUsingPredicate:thePredicate]);
 ```
 
-打印
+Output
 
 ```
 (
@@ -225,10 +225,10 @@ NSLog(@"%@",[arrayContent filteredArrayUsingPredicate:thePredicate]);
     abc4
 )
 ```
-比起循环比较再加到新数组中，简单的不止一两点。
+Compared with looping through and adding items to a new array, this is much simpler.
 
 
-前面提到的都是用 `+ (NSPredicate *)predicateWithFormat:(NSString *)predicateFormat, ...;` 方法创建，还有另一种常用的方法：`+ (NSPredicate*)predicateWithBlock:(BOOL (^)(id evaluatedObject, NSDictionary *bindings))block`，用Block形式创建
+The examples above all use `+ (NSPredicate *)predicateWithFormat:(NSString *)predicateFormat, ...;` to create predicates. There is also another commonly used method: `+ (NSPredicate*)predicateWithBlock:(BOOL (^)(id evaluatedObject, NSDictionary *bindings))block`, which creates a predicate using a block.
 
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
@@ -242,26 +242,26 @@ NSPredicate *pre = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSD
 }];
 ```
 
-参数`evaluatedObject`表示数组成员，block必须返回YES或者NO，分别表示匹配还是不匹配。请忽略`bindings`参数，具体作用我也没搞清楚。
+The parameter `evaluatedObject` represents an array element, and the block must return YES or NO to indicate a match or no match. Please ignore the `bindings` parameter; I have not figured out its exact purpose either.
 
-### 多重筛选
+### Multiple Filtering
 
-如果需要匹配数个属性的筛选，用`AND`或者`OR`来串联显然有点麻烦，`NSCompoundPredicate`类可以满足我们的需求，它可以将多个`NSPredicate`对象的组合，组合方式可以是`AND`或者`OR`。
+If you need to filter by multiple properties, chaining conditions with `AND` or `OR` can be somewhat cumbersome. The `NSCompoundPredicate` class meets this need, because it can combine multiple `NSPredicate` objects, using either `AND` or `OR`.
 
 ```objc
 	NSPredicate *pre1 = [NSPredicate predicateWithFormat:@"code >= %@", @3];
     NSPredicate *pre2 = [NSPredicate predicateWithFormat:@"code <= %@", @2];
-    //以AND形式组合
+    // Combine with AND
     NSPredicate *pre = [NSCompoundPredicate andPredicateWithSubpredicates:@[pre1,pre2]];
-    //以OR形式组合
+    // Combine with OR
     NSPredicate *pre = [NSCompoundPredicate orPredicateWithSubpredicates:@[pre1, pre2]];
 ```
 
 ___
 
-## 匹配用法
+## Matching Usage
 
-其实NSPredicate不仅可以用于筛选，还可以用来判断匹配直接返回是否符合，主要方法是`- (BOOL)evaluateWithObject:(id)object;`，用法：
+Actually, NSPredicate can be used not only for filtering, but also to determine whether an object matches and return the result directly. The main method is `- (BOOL)evaluateWithObject:(id)object;`, used like this:
 
 ```objc
 Test *test1 = [[Test alloc]init];
@@ -272,9 +272,9 @@ NSPredicate *pres = [NSPredicate predicateWithFormat:@"code == %@", @2];
 BOOL match = [pres evaluateWithObject:test1];
 ```
 
-当然最常用的还是配合配合正则表达式，列举几个常用的正则
+Of course, the most common use is together with regular expressions. Here are a few common regex examples.
 
-是否以a开头以e结尾
+Whether it starts with a and ends with e
 
 ```objc
 NSString *string=@"assdbfe";
@@ -283,33 +283,33 @@ NSPredicate *pres = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", targetS
 BOOL match = [pres evaluateWithObject:string];
 ```
 
-是否是邮箱
+Whether it is an email address
 
 ```objc
 NSString *strRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{1,5}";
 ```
 
-是否是手机号(包含了181、1700、1709、1705号段)
+Whether it is a mobile phone number (including the 181, 1700, 1709, and 1705 prefixes)
 
 ```objc
 + (BOOL)isMobileNumber:(NSString *)mobileNum
 {
     /**
-     *  中国移动：China Mobile
+    *  China Mobile
      *
      *  134[0-8],135,136,137,138,139,147,150,151,157,158,159,182,183,187,188,1705
      *
      */
     NSString * CM = @"^1((34[0-8]|(3[5-9]|5[017-9]|8[2378])|47\\d)|705)\\d{7}$";
     /**
-     *  中国联通：China Unicom
+    *  China Unicom
      *
      *  130,131,132,152,155,156,185,186,1709
      *
      */
     NSString * CU = @"^1((3[0-2]|5[256]|8[56])[0-9]|709)\\d{7}$";
     /**
-     *  中国电信：China Telecom
+    *  China Telecom
      *
      *  133,1349,153,180,189,181,177,1700
      *
@@ -333,10 +333,10 @@ NSString *strRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{1,5}";
 
 ____
 
-## 坑
+## Pitfalls
 
 
-在某些情况下，类似于上面例子中的`code`字符串不是很明确，创建的时候就会这样使用
+In some cases, strings like `code` in the example above are not very explicit, so you might create it like this:
 
 ```objc
     Test *test1 = [[Test alloc]init];
@@ -356,18 +356,18 @@ ____
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"%@ == %@", @"code", @2];
     NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 ```
-注意NSPredicate对象的初始化方式。执行后你会发现是错误的，打印`pre`发现`"code" == 2`，这说明查找的是`"code"`（注意：这是带双引号的）方法的返回值，这显然行不通。
+Pay attention to the initialization style of the NSPredicate object. After execution, you will find that it is wrong. Printing `pre` shows `"code" == 2`, which means it is looking for the return value of the `"code"` method (note: with double quotes), which clearly will not work.
 
-解决办法：
+Solution:
 
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithFormat:@"%K == %@", @"code", @2];
 ```
-注意：`%K`的`K`必须是大写。
+Note: the `K` in `%K` must be uppercase.
 
 
 
-另外对于空字符串的筛选也需要注意，Person 是一个带有 name 字段的类
+Also note the handling of empty strings. `Person` is a class with a `name` property:
 
 ```objc
     Person *person = [[Person alloc] init];
@@ -376,7 +376,7 @@ NSPredicate *pre = [NSPredicate predicateWithFormat:@"%K == %@", @"code", @2];
     NSLog(@"%@", [array filteredArrayUsingPredicate:pre]);
 ```
 
-直接用`name.length == 0` 的筛选条件会莫名其妙的失效，反而 `name == nil` 是可行的，或者直接用
+Using `name.length == 0` as a filter condition will inexplicably fail, while `name == nil` does work. You can also use:
 
 ```objc
 NSPredicate *pre = [NSPredicate predicateWithBlock:^BOOL(Person *_Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
@@ -386,5 +386,5 @@ NSPredicate *pre = [NSPredicate predicateWithBlock:^BOOL(Person *_Nullable evalu
 
 ____
 
-## 最后
-NSPredicate几乎可以满足所有形式的查询，配合Core Data的数据库查询当然不在话下。NSPredicate用法不只这些，有兴趣的同学可以看下nshipster网站的这篇[博文](http://nshipster.com/nspredicate/)，里面提到了一些我没有涉及到的用法。
+## Finally
+NSPredicate can satisfy almost any form of query, and it is of course perfect for Core Data database queries. NSPredicate has even more uses than the ones covered here. If you are interested, you can read this [post](http://nshipster.com/nspredicate/) on nshipster, which covers some usage patterns I did not mention.

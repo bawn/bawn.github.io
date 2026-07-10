@@ -1,3 +1,4 @@
+title: "UIStatusBarStyle"
 ---
 layout: post
 title: "UIStatusBarStyle"
@@ -8,18 +9,18 @@ tags: [UIStatusBarStyle]
 published: true
 keywords: UIStatusBarStyle
 ---
-在iOS中调整状态栏的样式有两种方式:
+There are two ways to adjust the status bar style in iOS:
 
-#### 1. 在plist中添加 View controller-based status bar appearance 设置为 YES ,然后通过以下方法设置样式
+#### 1. Add View controller-based status bar appearance to the plist and set it to YES, then set the style with the following method
 
 ```
 - (UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleDefault;
 }
 ```
-但是这个方法通常会莫名其妙的不执行，细心的话就会发现，只要在使用了 `UINavigationController` ，而且 `navigationBar` 没有被隐藏的条件下，它的 `rootController` 及之后 `push` 的 `controller` 的 `preferredStatusBarStyle` 方法不会被调用。原因是 `UINavigationController` 会根据自己 `navigationBar` 的 `barStyle` ，来决定 `StatusBarStyle`
+However, this method often seems to stop working for no obvious reason. If you pay attention, you will notice that as long as you are using a `UINavigationController` and the `navigationBar` is not hidden, the `preferredStatusBarStyle` method will not be called for its `rootController` or any later pushed controllers. The reason is that `UINavigationController` determines the `StatusBarStyle` based on its own `navigationBar`'s `barStyle`.
 
-解决办法：扩展 `UINavigationController`  ([venj博客](http://cocoa.venj.me/blog/view-controller-based-status-bar-style-and-uinavigationcontroller/))
+Solution: extend `UINavigationController` ([venj blog](http://cocoa.venj.me/blog/view-controller-based-status-bar-style-and-uinavigationcontroller/))
 
 > UINavigationController+StatusBar.h
 
@@ -41,15 +42,15 @@ keywords: UIStatusBarStyle
 @end
 ```
 
-导入`"UINavigationController+StatusBar.h"`然后调用`- (UIStatusBarStyle)preferredStatusBarStyle`即可
+Import `"UINavigationController+StatusBar.h"` and then call `- (UIStatusBarStyle)preferredStatusBarStyle`.
 
-#### 2. 在plist中添加View controller-based status bar appearance设置为NO,然后通过以下方法设置样式
+#### 2. Add View controller-based status bar appearance to the plist and set it to NO, then set the style with the following method
 
 ```
 [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 ```
 
-这样的话可以随意改变状态栏的样式，无论是否使用了 `UINavigationController` 。但是这个方法有个缺陷:如果在push到一个新VC的时候设置了状态栏为 `UIStatusBarStyleLightContent` ，pop回来的时候状态栏还是处于那个状态，这时候想设置回 `UIStatusBarStyleDefault` 必须再调用一次。也就是说此方法必须手动调用。
+This lets you change the status bar style freely, regardless of whether you use a `UINavigationController`. However, this approach has one drawback: if you set the status bar to `UIStatusBarStyleLightContent` when pushing to a new VC, the status bar will still be in that state when you pop back. At that point, if you want to set it back to `UIStatusBarStyleDefault`, you must call it again. In other words, this method must be called manually.
 
 
 

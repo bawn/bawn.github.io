@@ -1,42 +1,42 @@
 ---
 layout: post
-title: "为类关联对象"
+title: "Associating Objects with a Class"
 date: 2014-06-15
 comments: true
 categories: iOS
 tags: [iOS]
 published: true
 keywords: objc_setAssociatedObject objc_getAssociatedObject
-description: 关联对象
+description: Associated objects
 ---
 
-相信大家多多少少都见过`objc_setAssociatedObject`和`objc_getAssociatedObject`这两个方法。
+I believe most people have seen the two methods `objc_setAssociatedObject` and `objc_getAssociatedObject` to some extent.
 
-它们到底有什么用呢？如果只是说关联对象，这好像也没体现出来具体的作用，下面我来说一个比较实际作用。
-在使用`UIAlertView`的时候有没有觉得很麻烦，点击按钮的逻辑处理必须写在协议方法中，如果一个VC中存在多个`UIAlertView`就会更复杂，这样就必须在协议方法中判断传入`alertView`对象。我们可以利用上述两个方法一劳永逸的解决类似问题
+What are they actually useful for? If we only say "associated objects," that does not really show their practical value. Here is a more practical use case.
+When using `UIAlertView`, have you ever felt it was cumbersome? The logic for button taps has to be written in delegate methods. If a VC contains multiple `UIAlertView` instances, things become even more complicated, because you have to determine which `alertView` object was passed into the delegate method. We can use the two methods above to solve this kind of problem once and for all.
 
-最终得到创建和显示一个`UIAlertView`将会是这样子的
+In the end, creating and showing a `UIAlertView` can look like this:
 
 ```
-	[self showAlertViewWithTitle:@"是否确定结案"
+	[self showAlertViewWithTitle:@"Are you sure you want to close the case?"
                              message:nil
-                   cancelButtonTitle:@"取消"
-                   otherButtonTitles:@[@"退回", @"接收"]
+                   cancelButtonTitle:@"Cancel"
+                   otherButtonTitles:@[@"Return", @"Accept"]
                             onCancel:^{  
-            NSLog(@"取消按钮点击");
+            NSLog(@"Cancel button tapped");
         }onOther:^(NSInteger index) {
             if (index == 0) {
-                NSLog(@"其他第一个按钮点击");
+                NSLog(@"First other button tapped");
             }
             else{
-                NSLog(@"其他第二个按钮点击");
+                NSLog(@"Second other button tapped");
             }
         }];
 ```
 
-可以看到在创建`UIAlertView`的时候已经把每个按钮要处理的逻辑都写好了。
+You can see that when the `UIAlertView` is created, the logic for handling each button has already been defined.
 
-下面开始动手写这个扩展，我们创建一个名叫`Addons`的`UIViewController`扩展
+Let's start writing this extension. We will create a `UIViewController` category called `Addons`.
 
 >UIViewController+Addons.h
 
@@ -46,14 +46,14 @@ typedef void(^HandleBlock)(void);
 typedef void(^OtherHandleBlock)(NSInteger index);
 @interface UIViewController(Addons)<UIAlertViewDelegate>
 /**
- *  显示alterView
+ *  Show an alert view
  *
  *  @param title             title
  *  @param message           message
- *  @param cancelButtonTitle 取消按钮的title
- *  @param otherButtonTitles otherButton的title数组
- *  @param cancelBlock       取消按钮执行的block
- *  @param otherBlock        other按钮执行的block
+ *  @param cancelButtonTitle title for the cancel button
+ *  @param otherButtonTitles array of titles for other buttons
+ *  @param cancelBlock       block executed when the cancel button is tapped
+ *  @param otherBlock        block executed when another button is tapped
  */
 - (void)showAlertViewWithTitle:(NSString *) title
                       message:(NSString *) message
@@ -63,7 +63,7 @@ typedef void(^OtherHandleBlock)(NSInteger index);
                       onOther:(OtherHandleBlock) otherBlock;
 ```
 
-`typedef`两个`block`，第一个用于点击取消按钮执行，第二个用于点击其他按钮执行，因为其他按钮可能有多个，所以加入了`index`参数来判断点击的是哪个按钮。
+Two `block` types are defined. The first is used when the cancel button is tapped, and the second is used when another button is tapped. Because there may be multiple other buttons, an `index` parameter is added to determine which button was tapped.
 
 >UIViewController+Addons.m
 
@@ -114,7 +114,7 @@ static char kVCActionHandleAlertOtherBlockKey;
 }
 ```
 
-记得导入`<objc/runtime.h>`头文件，创建`UIAlertView`，然后把传入的两个`block`关联到`UIViewController`对象上，也就是这步
+Remember to import the `<objc/runtime.h>` header, create the `UIAlertView`, and then associate the two incoming `block`s with the `UIViewController` object, which is this step:
 
 ```
  if (cancelBlock) {
@@ -126,6 +126,6 @@ static char kVCActionHandleAlertOtherBlockKey;
 
 ```
 
-需要注意的是这里关联的规则最好用`OBJC_ASSOCIATION_COPY_NONATOMIC`，以便让ARC来管理这个`block`。后面的协议方法也就是把`block`从`self`中取出来执行。
+Note that the association policy here should preferably use `OBJC_ASSOCIATION_COPY_NONATOMIC` so that ARC can manage the `block`. The delegate method later simply retrieves the `block` from `self` and executes it.
 
-当然还有`UIActionSheet`甚至`UIImagePickerController`也可以这样来扩展
+Of course, `UIActionSheet` and even `UIImagePickerController` can also be extended this way.
